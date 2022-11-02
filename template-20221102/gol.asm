@@ -31,6 +31,76 @@
 main:
     ;; TODO
 
+
+; BEGIN:clears_leds
+clears_leds:
+    stw zero, LEDS(zero)
+    stw zero, LEDS+4(zero)
+    stw zero, LEDS+8(zero)
+	ret
+; END:clear_leds
+    
+
+; BEGIN:set_pixel
+set_pixel:
+	cmpltui t0, a0, 4    ; if LEDS[0]
+    cmpltui t1, a0, 8    ; if LEDS[1]
+    nor t2, t0, t0
+    and t1, t1, t2
+    cmpltui t3, a0, 12   ; if LEDS[2]
+    nor t4, t1, t1
+    and t3, t3, t4
+
+    bne t0, zero, CASE1
+    bne t1, zero, CASE2
+    bne t3, zero, CASE3
+
+    CASE1: 
+        slli a0, a0, 3
+        add t5, a0, a1
+        addi t6, zero, 1
+        sll t6, t6, t5         ; shift left the 1 by t5
+        stw t7, LEDS(zero)
+        or t6, t6, t7  ; mask t5 or existing leds
+        stw t6, LEDS(zero)
+
+    CASE2: 
+        addi a0, a0, -4
+        slli a0, a0, 3
+        add t5, a0, a1 
+        addi t6, zero, 1
+        sll t6, t6, t5
+        stw t7, LEDS+4(zero)
+        or t6, t6, t7
+        stw t6, LEDS+4(zero)
+
+    CASE3: 
+        addi a0, a0, -8
+        slli a0, a0, 3
+        add t5, a0, a1 
+        addi t6, zero, 1
+        sll t6, t6, t5
+        stw t7, LEDS+8(zero)
+        or t6, t6, t7
+        stw t6, LEDS+8(zero)
+
+	ret
+; END:set_pixel
+
+
+; BEGIN:wait
+wait:
+    addi t0, zero, 1
+    slli t0, t0, 19
+    ldw t1, SPEED(zero)
+
+    loop:
+        sub t0, t0, t1
+        bge t0, zero, loop
+	ret
+; END:wait
+
+
 font_data:
     .word 0xFC ; 0
     .word 0x60 ; 1
