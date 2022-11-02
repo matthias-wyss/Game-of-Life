@@ -30,6 +30,9 @@
 
 main:
     ;; TODO
+	addi a0, zero, 1
+	addi a1, zero, 2
+	call wait
 
 
 ; BEGIN:clears_leds
@@ -63,6 +66,7 @@ set_pixel:
         stw t7, LEDS(zero)
         or t6, t6, t7  ; mask t5 or existing leds
         stw t6, LEDS(zero)
+		break
 
     CASE2: 
         addi a0, a0, -4
@@ -73,6 +77,7 @@ set_pixel:
         stw t7, LEDS+4(zero)
         or t6, t6, t7
         stw t6, LEDS+4(zero)
+		break
 
     CASE3: 
         addi a0, a0, -8
@@ -83,6 +88,7 @@ set_pixel:
         stw t7, LEDS+8(zero)
         or t6, t6, t7
         stw t6, LEDS+8(zero)
+		break
 
 	ret
 ; END:set_pixel
