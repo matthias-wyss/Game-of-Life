@@ -30,9 +30,6 @@
 
 main:
     ;; TODO
-	addi a0, zero, 1
-	addi a1, zero, 2
-	call wait
 
 
 ; BEGIN:clears_leds
@@ -66,7 +63,6 @@ set_pixel:
         stw t7, LEDS(zero)
         or t6, t6, t7  ; mask t5 or existing leds
         stw t6, LEDS(zero)
-		break
 
     CASE2: 
         addi a0, a0, -4
@@ -77,7 +73,6 @@ set_pixel:
         stw t7, LEDS+4(zero)
         or t6, t6, t7
         stw t6, LEDS+4(zero)
-		break
 
     CASE3: 
         addi a0, a0, -8
@@ -88,7 +83,6 @@ set_pixel:
         stw t7, LEDS+8(zero)
         or t6, t6, t7
         stw t6, LEDS+8(zero)
-		break
 
 	ret
 ; END:set_pixel
@@ -105,6 +99,70 @@ wait:
         bge t0, zero, loop
 	ret
 ; END:wait
+
+
+; BEGIN:get_gsa
+get_gsa :
+	addi t2, zero, GSA_ID
+    beq t2, zero, STATE0
+    bne t2, zero, STATE1
+
+
+    STATE0 : 
+    ldw v0, GSA0(a0) 
+    ret
+
+    STATE1 : 
+    ldw v0, GSA1(a0) 
+    ret
+; END:get_gsa
+
+; BEGIN:set_gsa 
+set_gsa : 
+   	addi t2, zero, GSA_ID
+    beq t2, zero, STATE00
+    bne t2, zero, STATE11
+
+    STATE00 : 
+    stw a0, GSA0(a1)
+    ret
+
+    STATE11 : 
+    stw a0, GSA1(a1)
+    ret
+
+; END:set_gsa
+
+; BEGIN draw_gsa 
+draw_gsa : 
+
+    addi t0, zero, 0
+    addi t1, zero, 8
+
+    bne t0, t1, ITERX
+
+    ITERX : 
+        addi t2, zero, 0 
+        addi t3, zero, 12
+
+        bne t2, t3, DRAW
+
+        DRAW :
+            add a0, t2, zero
+            add a1, t0, zero
+            call set_pixel
+            addi t2, t2, 1
+        addi t0, t0, 1
+
+
+
+
+
+
+
+    
+
+; END:draw_gsa
 
 
 font_data:
