@@ -29,8 +29,8 @@
     .equ RUNNING, 0x01
 
 main:
-    ;; TODO
 
+	call random_gsa 
 
 ; BEGIN:clears_leds
 clears_leds:
@@ -152,18 +152,47 @@ draw_gsa :
             add a1, t0, zero
             call set_pixel
             addi t2, t2, 1
-        addi t0, t0, 1
+            addi t0, t0, 1 
 
-
-
-
-
-
-
-    
 
 ; END:draw_gsa
 
+; BEGIN:random_gsa 
+random_gsa : 
+	add t1, zero, zero ;;0 
+    addi t2, zero, 11   ;; 11
+    add t5, zero, zero ;; GSA 
+    addi t0, zero, GSA_ID
+    beq t0, zero, RANDOM_ZERO
+    bne t0, zero, RANDOM_UN 
+    
+
+
+    RANDOM_ZERO : 
+        bne t1, t2, ITER 
+		ret
+
+    RANDOM_UN : 
+        bne t1, t2, ITER
+		ret
+
+    ITER :
+        ldw t3, RANDOM_NUM(zero) ;; On prend un random num 
+        andi t4, t3, 1 ;; On recupere le LSB de random_num 
+        sll t4, t4, t1 ;; on le shift auquel on veut le mettre dans le gsa 
+        or t5, t5, t4 ;; on OR pour introduire dans gsa 
+        addi t1, t1, 1
+		bne t1, t2, ITER
+		beq t1, t2, end 
+
+	end : 
+		ret
+		 
+    
+
+; END:random_gsa 
+
+        
 
 font_data:
     .word 0xFC ; 0
@@ -286,3 +315,4 @@ MASKS:
     .word mask2
     .word mask3
     .word mask4
+
