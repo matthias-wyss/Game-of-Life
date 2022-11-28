@@ -831,7 +831,7 @@ cell_fate :
     ret
 ; END:cell_fate 
          
-; BEGIN: find_neighbours
+; BEGIN:find_neighbours
 find_neighbours:
     ; state of the cell (v1 part)
     add t0, a0, zero ; switch a0 and a1 for get_gsa (we need a0 : y)
@@ -920,7 +920,7 @@ find_neighbours:
             addi t4, t4, 1
             jmpi return_mod_3
     ret    
-; END: find_neighbours
+; END:find_neighbours
 
 ; BEGIN:update_gsa 
 update_gsa: 
@@ -1011,8 +1011,8 @@ ITERY :
                 stw zero, GSA_ID(zero) ; next ID 
                 ldw ra, CUSTOM_VAR_END(sp)
                 ret
-    ret
-; end:update_gsa 
+ret
+; END:update_gsa 
 
 ; BEGIN:mask
 mask:
@@ -1086,8 +1086,8 @@ get_input :
 ; END:get_input
 
 
-; BEGIN:decrement_steps
-decrement_steps: 
+; BEGIN:decrement_step
+decrement_step: 
     addi sp, sp, -4
     stw ra, CUSTOM_VAR_END(sp)
     ldw t0, CURR_STATE(zero) 
@@ -1157,7 +1157,7 @@ decrement_steps:
             addi v0, zero, 1 ; return 0
             ret    
     ret
-; END:decrement_steps 
+; END:decrement_step
 
 
 ; BEGIN:reset_game 
