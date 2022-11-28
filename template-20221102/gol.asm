@@ -29,8 +29,32 @@
     .equ RUNNING, 0x01
 
 main:
-
-	call random_gsa 
+	addi a0, zero, 3308
+    addi a1, zero, 0
+    call set_gsa
+	addi a0, zero, 1365
+	addi a1, zero, 1
+    call set_gsa
+	addi a0, zero, 1911
+    addi a1, a1, 1
+    call set_gsa
+	addi a0, zero, 1382
+    addi a1, a1, 1
+    call set_gsa
+	addi a0, zero, 1407
+    addi a1, a1, 1
+    call set_gsa
+	addi a0, zero, 0
+    addi a1, a1, 1
+    call set_gsa
+	addi a0, zero, 4095
+    addi a1, a1, 1
+    call set_gsa
+	addi a0, zero, 3950
+    addi a1, a1, 1
+    call set_gsa
+	call draw_gsa
+	
 
 ; BEGIN:clears_leds
 clears_leds:
@@ -60,7 +84,7 @@ set_pixel:
         add t5, a0, a1
         addi t6, zero, 1
         sll t6, t6, t5         ; shift left the 1 by t5
-        stw t7, LEDS(zero)
+        ldw t7, LEDS(zero)
         or t6, t6, t7  ; mask t5 or existing leds
         stw t6, LEDS(zero)
 
@@ -70,7 +94,7 @@ set_pixel:
         add t5, a0, a1 
         addi t6, zero, 1
         sll t6, t6, t5
-        stw t7, LEDS+4(zero)
+        ldw t7, LEDS+4(zero)
         or t6, t6, t7
         stw t6, LEDS+4(zero)
 
@@ -80,7 +104,7 @@ set_pixel:
         add t5, a0, a1 
         addi t6, zero, 1
         sll t6, t6, t5
-        stw t7, LEDS+8(zero)
+        ldw t7, LEDS+8(zero)
         or t6, t6, t7
         stw t6, LEDS+8(zero)
 
@@ -103,95 +127,237 @@ wait:
 
 ; BEGIN:get_gsa
 get_gsa :
-	addi t2, zero, GSA_ID
+	ldw t2, GSA_ID(zero)
+	slli t6, a0, 2
     beq t2, zero, STATE0
     bne t2, zero, STATE1
 
 
     STATE0 : 
-    ldw v0, GSA0(a0) 
+    ldw v0, GSA0(t6) 
     ret
 
     STATE1 : 
-    ldw v0, GSA1(a0) 
+    ldw v0, GSA1(t6) 
     ret
 ; END:get_gsa
 
 ; BEGIN:set_gsa 
 set_gsa : 
-   	addi t2, zero, GSA_ID
-    beq t2, zero, STATE00
-    bne t2, zero, STATE11
+   	ldw t7, GSA_ID(zero) ; to know which gsa is used 
+    slli t6, a1, 2
+    beq t7, zero, STATE00 ; state GSa0 
+    bne t7, zero, STATE11 ; state GSa 1 
 
     STATE00 : 
-    stw a0, GSA0(a1)
+    stw a0, GSA0(t6)
     ret
 
     STATE11 : 
-    stw a0, GSA1(a1)
+    stw a0, GSA1(t6)
     ret
 
 ; END:set_gsa
 
+
 ; BEGIN draw_gsa 
 draw_gsa : 
+addi t0, zero, -1 ; iter sur y de 0 a 7
+addi t3, zero, N_GSA_LINES
+    ITER_Y : 
+    addi t7, zero, 3 ; nm max de x dans un LED 
+    addi t4, zero, -1 ; iterateur sur toute la ligne x 
+    addi t0, t0, 1
+    addi a0, t0, 0 ; pour recup call gsa (numero de la ligne)
+    call get_gsa
+    bne t0, t3, ITER_LINE
+	ret
+    
 
-    addi t0, zero, 0
-    addi t1, zero, 8
+    ITER_LINE : 
+        addi t1, zero, -1 ; iterateur entre 0 et 3
+        br ITER_LED0
+        ret
+        
+        ITER_LED0 : 
+        addi t5, zero, 1 ; mask 
+		addi t4, t4, 1
+        sll t5, t5, t4 ; mask le bit qu'on veut recuperer  
+        addi t1, t1, 1 
+        and t5, v0, t5 ; on applique le mask sur t5 
+        srl t5, t5, t4
+        slli s5, t1, 3 ; fois 8
+        add s5, s5, t0 ; + y 
+        add s4, zero, t5
+        sll s4, s4, s5
+        ldw s6, LEDS(zero) ; on recup la valeur de la LED precedente 
+        or s4, s6, s4 ; on concatene le tout 
+        stw s4, LEDS(zero)  ; on le met dans LED0 
+        bne t1, t7, ITER_LED0 
+        beq t1, t7, ITER_LED1
+        ret
 
-    bne t0, t1, ITERX
+        ITER_LED1 : 
+            addi t5, zero, 1 
+            addi t4, t4, 1
+            sll t5, t5, t4
+            addi t1, t4, 0
+            addi t1, t1, -4
+            and t5, v0, t5
+            srl t5, t5, t4
+            slli s5, t1, 3
+            add s5, s5, t0
+            add s4, zero, t5
+            sll s4, s4, s5
+            ldw s6, LEDS+4(zero)
+            or s4, s6, s4 
+            stw s4, LEDS+4(zero)
+            bne t1, t7, ITER_LED1 
+            beq t1, t7, ITER_LED2
+            ret
 
-    ITERX : 
-        addi t2, zero, 0 
-        addi t3, zero, 12
 
-        bne t2, t3, DRAW
-
-        DRAW :
-            add a0, t2, zero
-            add a1, t0, zero
-            call set_pixel
-            addi t2, t2, 1
-            addi t0, t0, 1 
-
+        ITER_LED2 : 
+            addi t5, zero, 1 
+            addi t4, t4, 1
+            sll t5, t5, t4
+            addi t1, t4, 0
+            addi t1, t1, -8
+            and t5, v0, t5
+            srl t5, t5, t4
+            slli s5, t1, 3
+            add s5, s5, t0
+            add s4, zero, t5
+            sll s4, s4, s5
+            ldw s6, LEDS+8(zero)
+            or s4, s6, s4 
+            stw s4, LEDS+8(zero)
+            bne t1, t7, ITER_LED2
+			addi s7, t0, 1 
+            bne s7, t3, ITER_Y
+            ret
 
 ; END:draw_gsa
 
 ; BEGIN:random_gsa 
 random_gsa : 
-	add t1, zero, zero ;;0 
-    addi t2, zero, 11   ;; 11
+		addi t6, zero, 7
+		br OKLM 
+	OKLM : 
+	add t1, zero, zero ;;0  
+    addi t2, zero, 11   ;; 11 MAX
     add t5, zero, zero ;; GSA 
-    addi t0, zero, GSA_ID
-    beq t0, zero, RANDOM_ZERO
-    bne t0, zero, RANDOM_UN 
-    
+    ;ldw t0, GSA_ID(zero)
+    addi t0, zero, 8
+	br ITER 
+   ; addi s1, zero, 12 
 
 
-    RANDOM_ZERO : 
-        bne t1, t2, ITER 
-		ret
-
-    RANDOM_UN : 
-        bne t1, t2, ITER
-		ret
 
     ITER :
-        ldw t3, RANDOM_NUM(zero) ;; On prend un random num 
-        andi t4, t3, 1 ;; On recupere le LSB de random_num 
-        sll t4, t4, t1 ;; on le shift auquel on veut le mettre dans le gsa 
-        or t5, t5, t4 ;; on OR pour introduire dans gsa 
-        addi t1, t1, 1
+        ldw t3, RANDOM_NUM(zero) ; On prend un random num 
+        andi t4, t3, 1 ; On recupere le LSB de random_num 
+        sll t4, t4, t1 ; on le shift auquel on veut le mettre dans le gsa 
+        or t5, t5, t4 ;on OR pour introduire dans gsa 
+        addi t1, t1, 1 ; + 1 a l'iteration 
 		bne t1, t2, ITER
-		beq t1, t2, end 
+		beq t1, t2, SET_G
 
-	end : 
-		ret
+    SET_G : 
+        add a0, t5, zero 
+        add a1, t6, zero
+		add s1, zero, ra
+        call set_gsa
+		add ra, s1, zero
+        addi t6, t6, 1
+        bne t6, t0, OKLM 
+		ret   
+
 		 
-    
-
 ; END:random_gsa 
 
+; BEGIN:change_speed 
+change_speed : 
+        ldw t1, SPEED(zero)
+        addi t2, zero, MAX_SPEED
+        addi t3, zero, MIN_SPEED
+
+        beq a0, zero, INCREMENT
+        bne a0, zero, DECREMENT
+
+            INCREMENT : 
+            bne t1, t2, ADD1
+
+                ADD1 : 
+                addi t1, t1, 1
+                stw t1, SPEED(zero)            
+            ret 
+            DECREMENT : 
+            bne t1, t3, SUB1
+
+                SUB1 : 
+                addi t1, t1, -1
+                stw t1, SPEED(zero)
+            ret
+
+; END:change_speed
+
+; BEGIN:pause_game 
+pause_game : 
+        ldw t1, PAUSE(zero)
+        addi t2, zero, PAUSED
+        addi t3, zero,  RUNNING
+        beq t1, t2, ISPAUSED
+        beq t1, t3, ISRUNNING 
+
+
+        ISPAUSED : 
+        stw t3, PAUSE(zero)
+        ret
+
+        ISRUNNING : 
+        stw t2, PAUSE(zero) 
+        ret
+
+; END:pause_game 
+
+; BEGIN:change_steps
+change_steps :
+    addi s0, zero, 1 
+    bne a0, zero, UNITS
+    bne a1, zero, TENS 
+    bne a2, zero, HUNDREDS
+
+    UNITS :
+        addi s0, s0, 1
+        ret
+
+    TENS :
+        addi s0, s0, 10
+        ret
+
+    HUNDREDS :
+        addi s0, s0, 100
+        ret
+; END:change_steps
+
+; BEGIN: increment_seed 
+increment_seed : 
+    ldw t1, CURR_STATE(zero) ; current state 
+    ldw t2, SEED(zero) ; game seed
+    addi t0, zero, INIT ; state INIT 
+    beq t0, t1, INIT_STATE   ; case currenstate equals INIT state 
+
+        INIT_STATE : 
+            addi t2, t2, 1 ; increment by one 
+            stw t2, SEED(zero)
+            
+            
+
+; END: increment_seed 
+
+
+; 
         
 
 font_data:
