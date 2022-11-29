@@ -55,20 +55,182 @@ main:
    ;add t0, v0, zero 
    ;beq t1, zero, SUITE
    ;beq zero, zero, FINAL
-  	call pause_game 
-	 call increment_seed 
-	 call draw_gsa 
-	 addi a0, zero, 3 
-	 addi a1, zero, 1 
-	 call find_neighbours 
-	 add a0, v0, zero 
-	 add a1, v1, zero 
-	 call cell_fate 
- 	call update_gsa 
-	call clear_leds 
-	 addi a0, zero, 256 
-	 call set_gsa 
-	 call draw_gsa
+  	;call pause_game 
+	; call increment_seed 
+	; call draw_gsa 
+	; addi a0, zero, 3 
+	; addi a1, zero, 1 
+	; call find_neighbours 
+	; add a0, v0, zero 
+	; add a1, v1, zero 
+	; call cell_fate 
+ 	;call update_gsa 
+	;call clear_leds 
+	; addi a0, zero, 256 
+	; call set_gsa 
+	; call draw_gsa
+
+;addi a0,zero,5 
+ ;addi a1,zero,3 
+ ;call set_pixel 
+ ;addi a0,zero,5 
+ ;addi a1,zero,3 
+ ;call set_pixel 
+ 
+ ;addi t0,zero,MAX_SPEED 
+ ;stw t0, SPEED(zero) 
+ ;call wait 
+ ;call random_gsa 
+ ;addi a0, zero, -1 
+ ;addi a1, zero, 0 
+ ;call set_gsa 
+ ;addi a0, zero, 1023 
+ ;addi a1, zero, 1 
+ ;call set_gsa 
+ ;addi a0, zero, 3500 
+ ;addi a1, zero, 5 
+ ;call set_gsa 
+ ;call draw_gsa 
+ ;addi a1, zero, 0 
+ ;call set_gsa 
+ ;addi a0, zero, 1023 
+ ;addi a1, zero, 1 
+ ;call set_gsa 
+ ;addi a0, zero, 3500 
+ ;addi a1, zero, 5 
+ ;call set_gsa 
+ ;call draw_gsa 
+ 
+  
+ 
+ ;addi t0, zero, 6 
+ ;stw t0, SPEED(zero) 
+ ;addi a0, zero, 1 
+ ;call change_speed 
+ ;call change_speed 
+ 
+ ;addi t0, zero, 1 
+ ;stw t0, SEED(zero) 
+ ;call increment_seed 
+ ;call increment_seed 
+ ;addi t1, zero, 1 
+ ;stw t1, CURR_STATE(zero) 
+ ;call increment_seed 
+ ;call increment_seed 
+ 
+;call random_gsa
+;call draw_gsa 
+ 
+ 
+ ;addi a0, zero, 9 
+ ;addi a1, zero, 1 
+ ;call cell_fate 
+  
+; call fin 
+; call pause_game 
+; call pause_game 
+; call pause_game 
+; call pause_game 
+ 
+; addi a0, zero, 1 
+; call update_state 
+; addi t0, zero, 3 
+; stw t0, SEED(zero) 
+; call update_state 
+; addi a0, zero, 4 
+; call update_state 
+; addi a0, zero, 2 
+; call update_state 
+; addi a0, zero, 8 
+; call update_state 
+ 
+; call get_input 
+; call get_input 
+; call get_input 
+ 
+; call pause_game 
+; call increment_seed 
+; call draw_gsa 
+; addi a0, zero, 11 
+; addi a1, zero, 7 
+; call find_neighbours 
+; add a0, v0, zero 
+; add a1, v1, zero 
+; call cell_fate 
+ ;call update_gsa 
+; call clear_leds 
+; addi a0, zero, 256 
+; call set_gsa 
+; call draw_gsa 
+ 
+; call reset_game 
+ ; call draw_gsa 
+; addi a0, zero, 20 
+; call select_action 
+; addi a0, zero, 20 
+; call select_action 
+; addi a0, zero, 12 
+; call select_action 
+; addi a0, zero, 1 
+; call select_action 
+; addi a0, zero, 1 
+; call update_state 
+; addi a0, zero, 1 
+; call select_action 
+; addi a0, zero, 1 
+; call update_state 
+; addi a0, zero, 1 
+; call select_action 
+; addi a0, zero, 1 
+; call update_state 
+; addi a0, zero, 12 
+; call select_action 
+; addi a0, zero, 2 
+; call select_action 
+; addi a0, zero, 2 
+; call update_state 
+; addi a0, zero, 1 
+; call select_action 
+; addi a0, zero, 1 
+; call select_action 
+; addi a0, zero, 2 
+; call select_action 
+; addi a0, zero, 2 
+; call select_action 
+; addi a0, zero, 4 
+; call select_action 
+; addi a0, zero, 16 
+; call select_action 
+; addi a0, zero, 8 
+; call select_action 
+; addi a0, zero, 8 
+; call update_state 
+; addi a0, zero, 1 
+; call select_action 
+; addi a0, zero, 1 
+; call select_action 
+; addi a0, zero, 2 
+; call select_action 
+; addi a0, zero, 2 
+; call update_state 
+call reset_game 
+call pause_game 
+call increment_seed 
+call draw_gsa  
+call clear_leds 
+call increment_seed 
+call draw_gsa 
+call clear_leds 
+call increment_seed 
+call draw_gsa 
+call clear_leds 
+call increment_seed 
+;call increment_seed 
+;call draw_gsa 
+ 
+
+end: 
+	break 
 
 ; BEGIN:clear_leds
 clear_leds:
@@ -290,10 +452,11 @@ addi t3, zero, N_GSA_LINES
 ; BEGIN:random_gsa 
 random_gsa: 
 		addi t6, zero, 7
+        add s1, zero, zero ; iterateur sur Y
 		br OKLM 
 	OKLM : 
 	add t1, zero, zero ;;0  
-    addi t2, zero, 11   ;; 11 MAX
+    addi t2, zero, 12   ;; 11 MAX
     add t5, zero, zero ;; GSA 
     ;ldw t0, GSA_ID(zero)
     addi t0, zero, 8
@@ -310,7 +473,7 @@ random_gsa:
 
     SET_G : 
         add a0, t5, zero 
-        add a1, t6, zero
+        add a1, s1, zero
 		;add s1, zero, ra
 
         addi sp, sp, -4 
@@ -319,9 +482,12 @@ random_gsa:
         stw t6, CUSTOM_VAR_END(sp)
         addi sp, sp, -4 
         stw t0, CUSTOM_VAR_END(sp)
+        addi sp, sp, -4 
+        stw s1, CUSTOM_VAR_END(sp) 
 
         call set_gsa
-
+        ldw s1, CUSTOM_VAR_END(sp)
+        addi sp, sp, 4
         ldw t0, CUSTOM_VAR_END(sp)
         addi sp, sp, 4
         ldw t6, CUSTOM_VAR_END(sp)
@@ -329,8 +495,8 @@ random_gsa:
         ldw ra, CUSTOM_VAR_END(sp)
         addi sp, sp, 4
 		;add ra, s1, zero
-        addi t6, t6, 1
-        bne t6, t0, OKLM 
+        addi s1, s1, 1
+        bne s1, t0, OKLM 
 		ret   
 ret		 
 ; END:random_gsa 
@@ -478,7 +644,7 @@ update_state:
     addi t2, zero, RAND ; state RAND
     addi t3, zero, RUN ; state RUN
     add t6, a0, zero ; edgecapture input
-    slli t6, t6, 27 ; on garde que les 5 buttons
+    ;slli t6, t6, 27 ; on garde que les 5 buttons
     addi t7, zero, N_SEEDS
     beq t0, t1, CASE_INIT
     beq t0, t2, CASE_RAND
@@ -487,17 +653,17 @@ update_state:
 
         CASE_INIT: 
             addi t4, zero, 1 ; mask for b0
-            slli t4, t4, 27 ; on garde que pour les 5 buttons
+            ;slli t4, t4, 27 ; on garde que pour les 5 buttons
             and t5, t4, t6 ; apply mask
             beq t5, t4, CHECK_EQUAL
         return_init_1:
             addi t4, zero, 2 ; mask for b1
-            slli t4, t4, 27 ; on garde que pour les 5 buttons
+            ;slli t4, t4, 27 ; on garde que pour les 5 buttons
             and t5, t4, t6 ; apply mask
             beq t5, t4, SET_RUN_1
         return_init_2:
             addi t4, zero, 29 ; mask for 11101
-            slli t4, t4, 27 ; on garde que pour les 5 buttons
+            ;slli t4, t4, 27 ; on garde que pour les 5 buttons
             and t5, t4, t6 ; apply mask
             beq t5, t4, CHECK_LOWER
         return_init_3:
@@ -1202,98 +1368,55 @@ decrement_step:
 
 
 ; BEGIN:reset_game 
-;reset_game: 
-;addi t1, zero, 1
-;stw t1, CURR_STEP(zero)
-;addi t0, zero, 0 ; iterateur 
-;addi t2, zero, N_SEEDS ; MAX SEED 
-;addi t4, zero, N_GSA_LINES ; LIGNE MX GS 
-;ldw t3, font_data(zero) ; on prend la valeure 0 
+reset_game: 
+addi sp, sp, -4
+stw ra, CUSTOM_VAR_END(sp)
+addi t1, zero, 1
+stw t1, CURR_STEP(zero)
+addi t0, zero, 0 ; iterateur 
+addi t2, zero, N_SEEDS ; MAX SEED 
+addi t4, zero, N_GSA_LINES ; LIGNE MX GS 
+ldw t3, font_data(zero) ; on prend la valeure 0 
+addi t5, zero, seed0 ; iterateur sur les seeds 
 
-;iter : 
-;stw t3, SEVEN_SEGS(t0)
-;addi t0, t0, 1 
-;bne t0, t2, iter 
+iter : 
+addi sp, sp, -4
+stw t0, CUSTOM_VAR_END(sp)
+addi sp, sp, -4
+stw t1, CUSTOM_VAR_END(sp)
+addi sp, sp, -4
+stw t5, CUSTOM_VAR_END(sp)
+addi sp, sp, -4
+stw t4, CUSTOM_VAR_END(sp)
 
-;stw t1, SPEED(zero)
-;stw zero, SEED(zero) 
-;stw zero, CURR_STATE(zero) ; INIT ST
-;stw zero, GSA_ID(zero) 
-;stw zero, PAUSE(zero)
-;ret
+add a1, zero, t0
+ldw a0, 0(t5)
+
+call set_gsa
+
+ldw t4, CUSTOM_VAR_END(sp)
+addi sp, sp, 4
+ldw t5, CUSTOM_VAR_END(sp)
+addi sp, sp, 4 
+ldw t1, CUSTOM_VAR_END(sp)
+addi sp, sp, 4
+ldw t0, CUSTOM_VAR_END(sp)
+addi sp, sp, 4
+
+addi t0, t0, 1
+addi t5, t5, 4
+bne t0, t4, iter
+
+stw t1, SPEED(zero)
+stw zero, SEED(zero) 
+stw zero, CURR_STATE(zero) ; INIT ST
+stw zero, GSA_ID(zero) 
+stw zero, PAUSE(zero)
+ldw ra, CUSTOM_VAR_END(sp)
+addi sp, sp, 4
+ret
 ; END:reset_game 
 
-
-; BEGIN:reset_game
-reset_game:
-    ; save ra
-    addi sp, sp, -4
-    stw ra, 0(sp)
-
-    ; save s0, s1, s2
-    addi sp, sp, -4
-    stw s0, 0(sp)
-    addi sp, sp, -4
-    stw s1, 0(sp)
-    addi sp, sp, -4
-    stw s2, 0(sp)
-    addi sp, sp, -4;
-    stw s3, 0(sp)
-
-    ; [CURR_STATE] = INIT
-    addi s0, zero, INIT ; ;;
-    stw s0, CURR_STATE(zero) ;; 
-
- ; [CURR_STEP] = 1
- addi s0, zero, 1 ;; 
- stw s0, CURR_STEP(zero) ;; 
-
- ; [CURR_SEED] = 0
- stw zero, SEED(zero) ;; 
-
- ; [GSA_ID] = 0
- stw zero, GSA_ID(zero) ;; 
-
- ; [PAUSE] = 0
- addi s0, zero, PAUSED ;; 
- stw s0, PAUSE(zero) ;; 
-
- ; [SPEED] = MIN_SPEED
- addi s0, zero, MIN_SPEED ;; 
- stw s0, SPEED(zero) ;;
-
- ; GSA = seed0
- addi s0, zero, 0
- addi s1, zero, N_GSA_LINES
- addi s2, zero, seed0
-; for (i = 0; i < N_GSA_LINES; i++)
-loop_start_reset_game:
- ; a0 = seed[i]
- ldw a0, 0(s2)
- add a1, s0, zero
-
- call set_gsa
-
- addi s2, s2, 4
- addi s0, s0, 1
- blt s0, s1, loop_start_reset_game
-
-    ; restore s0, s1, s2
-    ldw s3, 0(sp)
-    addi sp, sp, 4
-    ldw s2, 0(sp)
-    addi sp, sp, 4
-    ldw s1, 0(sp)
-    addi sp, sp, 4
-    ldw s0, 0(sp)
-    addi sp, sp, 4
-
-    ; restore ra
-    ldw ra, 0(sp)
-    addi sp, sp, 4
-
- ret
-; END:reset_game
 
 font_data:
     .word 0xFC ; 0
