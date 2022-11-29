@@ -29,33 +29,46 @@
     .equ RUNNING, 0x01
 
 main:
-   FINAL : 
-   call reset_game 
-   call get_input
-   add t0, zero, v0 ; edgecapture 
-   add t1, zero, zero 
-   bne t1, zero, SUITE
+  ; FINAL : 
+  ; call reset_game 
+  ; call get_input
+  ; add t0, zero, v0 ; edgecapture 
+  ; add t1, zero, zero 
+  ; bne t1, zero, SUITE
 
-   SUITE : 
-   add a0, t0, zero 
-   addi sp, sp, -4
-   stw t0, CUSTOM_VAR_END(sp)
-   call select_action
-   ldw t0, CUSTOM_VAR_END(sp)
-   addi sp, sp, 4
-   add a0, zero, t0
-   call update_state
-   call update_gsa 
-   call mask 
-   call draw_gsa
-   call wait 
-   call decrement_steps
-   add t1, zero, v0
-   call get_input
-   add t0, v0, zero 
-   beq t1, zero, SUITE
-   beq zero, zero, FINAL
-   
+   ;SUITE : 
+   ;add a0, t0, zero 
+   ;addi sp, sp, -4
+   ;stw t0, CUSTOM_VAR_END(sp)
+   ;call select_action
+   ;ldw t0, CUSTOM_VAR_END(sp)
+   ;addi sp, sp, 4
+   ;add a0, zero, t0
+   ;call update_state
+   ;call update_gsa 
+   ;call mask 
+   ;call draw_gsa
+   ;call wait 
+   ;call decrement_step
+   ;add t1, zero, v0
+   ;call get_input
+   ;add t0, v0, zero 
+   ;beq t1, zero, SUITE
+   ;beq zero, zero, FINAL
+  	call pause_game 
+	 call increment_seed 
+	 call draw_gsa 
+	 addi a0, zero, 3 
+	 addi a1, zero, 1 
+	 call find_neighbours 
+	 add a0, v0, zero 
+	 add a1, v1, zero 
+	 call cell_fate 
+ 	call update_gsa 
+	call clear_leds 
+	 addi a0, zero, 256 
+	 call set_gsa 
+	 call draw_gsa
 
 ; BEGIN:clear_leds
 clear_leds:
@@ -187,7 +200,6 @@ addi t3, zero, N_GSA_LINES
     stw t0, CUSTOM_VAR_END(sp)
     addi sp, sp, -4 
     stw a0, CUSTOM_VAR_END(sp)
-    addi sp, sp, -4 
     ;stw s3, CUSTOM_VAR_END(sp)
 
     call get_gsa
@@ -393,16 +405,20 @@ ret
 ; END:change_steps
 
 ; BEGIN:increment_seed
-  increment_seed: 
+increment_seed: 
+ addi sp, sp, -4
+ stw ra, CUSTOM_VAR_END(sp)
     ldw t1, CURR_STATE(zero) ; current state 
     addi t0, zero, INIT ; state INIT 
     addi t3, zero, RAND ; state RAND
-    beq t0, t1, INIT_STATE   ; case currenstate equals INIT state 
-    beq t3, t1, RAND_STATE
-    add t4, zero, zero
+ add t4, zero, zero
     add t6, zero, zero
+ add s5, zero, zero
     addi t7, zero, N_SEEDS
     addi s0, zero, N_GSA_LINES
+ add a1, zero, zero
+    beq t0, t1, INIT_STATE   ; case currenstate equals INIT state 
+    beq t3, t1, RAND_STATE
 
         INIT_STATE :
             ldw t2, SEED(zero) ; game seed
@@ -413,11 +429,30 @@ ret
             ret
 
         SET_G2 :
-            ldw t5, SEEDS(t2)
-            stw t5, GSA0(t4)
-            addi t2, t2, 4 ; next word
-            addi t4, t4, 1
-            bne t4, s0, SET_G2
+   slli t6, t2, 2
+            ldw t5, SEEDS(t6)
+   add t5, t5, s5
+      ldw a0, 0(t5)
+   addi sp, sp, -4
+   stw ra, CUSTOM_VAR_END(sp)
+      addi sp, sp, -4
+            stw t2, CUSTOM_VAR_END(sp)
+      addi sp, sp, -4
+            stw t5, CUSTOM_VAR_END(sp)
+   addi sp, sp, -4
+      stw s0, CUSTOM_VAR_END(sp)
+            call set_gsa
+      ldw s0, CUSTOM_VAR_END(sp)
+            addi sp, sp, 4
+     ldw t5, CUSTOM_VAR_END(sp)
+            addi sp, sp, 4
+      ldw t2, CUSTOM_VAR_END(sp)
+            addi sp, sp, 4
+   ldw ra, CUSTOM_VAR_END(sp)
+   addi sp, sp, 4
+            addi s5, s5, 4 ; next word
+      addi a1, a1, 1
+            bne a1, s0, SET_G2
             ret
 
         RAND_STATE :
@@ -426,10 +461,12 @@ ret
             call random_gsa
             ldw t2, CUSTOM_VAR_END(sp)
             addi sp, sp, 4
+   stw ra, CUSTOM_VAR_END(sp)
+   addi sp, sp, 4
             addi t2, zero, 4
             stw t2, SEED(zero)
             ret
-    ret
+ ret
 ; END:increment_seed
 
 
@@ -838,6 +875,8 @@ find_neighbours:
     add a0, a1, zero ; a0 : y coordinate
     add a1, t0, zero ; a1 : x coordinate
     addi sp, sp, -4 
+    stw ra, CUSTOM_VAR_END(sp)
+    addi sp, sp, -4 
     stw t0, CUSTOM_VAR_END(sp)
     addi sp, sp, -4 
     stw a0, CUSTOM_VAR_END(sp)
@@ -885,8 +924,11 @@ find_neighbours:
     addi s0, s0, 2
     addi s1, s1, -2
     call MOD
-    add v0, t4, zero
+    add v0, t4, zero 
+    ldw ra, CUSTOM_VAR_END(sp)
+    addi sp, sp, 4
     ret
+    
 
         MOD:
             blt s0, zero, LOWER ; si inferieur 0 on ajoute 12
@@ -1063,7 +1105,6 @@ mask:
         stw t2, CUSTOM_VAR_END(sp)
         addi sp, sp, -4
         stw t5, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4
         call set_gsa
         ldw t5, CUSTOM_VAR_END(sp)
         addi sp, sp, 4
@@ -1161,26 +1202,98 @@ decrement_step:
 
 
 ; BEGIN:reset_game 
-reset_game: 
-addi t1, zero, 1
-stw t1, CURR_STEP(zero)
-addi t0, zero, 0 ; iterateur 
-addi t2, zero, N_SEEDS ; MAX SEED 
-ldw t3, font_data(zero) ; on prend la valeure 0 
+;reset_game: 
+;addi t1, zero, 1
+;stw t1, CURR_STEP(zero)
+;addi t0, zero, 0 ; iterateur 
+;addi t2, zero, N_SEEDS ; MAX SEED 
+;addi t4, zero, N_GSA_LINES ; LIGNE MX GS 
+;ldw t3, font_data(zero) ; on prend la valeure 0 
 
-iter : 
-stw t3, SEVEN_SEGS(t0)
-addi t0, t0, 1 
-bne t0, t2, iter 
+;iter : 
+;stw t3, SEVEN_SEGS(t0)
+;addi t0, t0, 1 
+;bne t0, t2, iter 
 
-addi t0, zero, 0 
-stw t1, SPEED(zero)
-stw t0, SEED(zero) 
-stw t0, CURR_STATE(zero)
-stw t0, GSA_ID(zero) 
-stw t0, PAUSE(zero)
-ret
+;stw t1, SPEED(zero)
+;stw zero, SEED(zero) 
+;stw zero, CURR_STATE(zero) ; INIT ST
+;stw zero, GSA_ID(zero) 
+;stw zero, PAUSE(zero)
+;ret
 ; END:reset_game 
+
+
+; BEGIN:reset_game
+reset_game:
+    ; save ra
+    addi sp, sp, -4
+    stw ra, 0(sp)
+
+    ; save s0, s1, s2
+    addi sp, sp, -4
+    stw s0, 0(sp)
+    addi sp, sp, -4
+    stw s1, 0(sp)
+    addi sp, sp, -4
+    stw s2, 0(sp)
+    addi sp, sp, -4;
+    stw s3, 0(sp)
+
+    ; [CURR_STATE] = INIT
+    addi s0, zero, INIT ; ;;
+    stw s0, CURR_STATE(zero) ;; 
+
+ ; [CURR_STEP] = 1
+ addi s0, zero, 1 ;; 
+ stw s0, CURR_STEP(zero) ;; 
+
+ ; [CURR_SEED] = 0
+ stw zero, SEED(zero) ;; 
+
+ ; [GSA_ID] = 0
+ stw zero, GSA_ID(zero) ;; 
+
+ ; [PAUSE] = 0
+ addi s0, zero, PAUSED ;; 
+ stw s0, PAUSE(zero) ;; 
+
+ ; [SPEED] = MIN_SPEED
+ addi s0, zero, MIN_SPEED ;; 
+ stw s0, SPEED(zero) ;;
+
+ ; GSA = seed0
+ addi s0, zero, 0
+ addi s1, zero, N_GSA_LINES
+ addi s2, zero, seed0
+; for (i = 0; i < N_GSA_LINES; i++)
+loop_start_reset_game:
+ ; a0 = seed[i]
+ ldw a0, 0(s2)
+ add a1, s0, zero
+
+ call set_gsa
+
+ addi s2, s2, 4
+ addi s0, s0, 1
+ blt s0, s1, loop_start_reset_game
+
+    ; restore s0, s1, s2
+    ldw s3, 0(sp)
+    addi sp, sp, 4
+    ldw s2, 0(sp)
+    addi sp, sp, 4
+    ldw s1, 0(sp)
+    addi sp, sp, 4
+    ldw s0, 0(sp)
+    addi sp, sp, 4
+
+    ; restore ra
+    ldw ra, 0(sp)
+    addi sp, sp, 4
+
+ ret
+; END:reset_game
 
 font_data:
     .word 0xFC ; 0
