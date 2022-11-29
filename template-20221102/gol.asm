@@ -55,179 +55,6 @@ main:
    ;add t0, v0, zero 
    ;beq t1, zero, SUITE
    ;beq zero, zero, FINAL
-  	;call pause_game 
-	; call increment_seed 
-	; call draw_gsa 
-	; addi a0, zero, 3 
-	; addi a1, zero, 1 
-	; call find_neighbours 
-	; add a0, v0, zero 
-	; add a1, v1, zero 
-	; call cell_fate 
- 	;call update_gsa 
-	;call clear_leds 
-	; addi a0, zero, 256 
-	; call set_gsa 
-	; call draw_gsa
-
-;addi a0,zero,5 
- ;addi a1,zero,3 
- ;call set_pixel 
- ;addi a0,zero,5 
- ;addi a1,zero,3 
- ;call set_pixel 
- 
- ;addi t0,zero,MAX_SPEED 
- ;stw t0, SPEED(zero) 
- ;call wait 
- ;call random_gsa 
- ;addi a0, zero, -1 
- ;addi a1, zero, 0 
- ;call set_gsa 
- ;addi a0, zero, 1023 
- ;addi a1, zero, 1 
- ;call set_gsa 
- ;addi a0, zero, 3500 
- ;addi a1, zero, 5 
- ;call set_gsa 
- ;call draw_gsa 
- ;addi a1, zero, 0 
- ;call set_gsa 
- ;addi a0, zero, 1023 
- ;addi a1, zero, 1 
- ;call set_gsa 
- ;addi a0, zero, 3500 
- ;addi a1, zero, 5 
- ;call set_gsa 
- ;call draw_gsa 
- 
-  
- 
- ;addi t0, zero, 6 
- ;stw t0, SPEED(zero) 
- ;addi a0, zero, 1 
- ;call change_speed 
- ;call change_speed 
- 
- ;addi t0, zero, 1 
- ;stw t0, SEED(zero) 
- ;call increment_seed 
- ;call increment_seed 
- ;addi t1, zero, 1 
- ;stw t1, CURR_STATE(zero) 
- ;call increment_seed 
- ;call increment_seed 
- 
-;call random_gsa
-;call draw_gsa 
- 
- 
- ;addi a0, zero, 9 
- ;addi a1, zero, 1 
- ;call cell_fate 
-  
-; call fin 
-; call pause_game 
-; call pause_game 
-; call pause_game 
-; call pause_game 
- 
-; addi a0, zero, 1 
-; call update_state 
-; addi t0, zero, 3 
-; stw t0, SEED(zero) 
-; call update_state 
-; addi a0, zero, 4 
-; call update_state 
-; addi a0, zero, 2 
-; call update_state 
-; addi a0, zero, 8 
-; call update_state 
- 
-; call get_input 
-; call get_input 
-; call get_input 
- 
-; call pause_game 
-; call increment_seed 
-; call draw_gsa 
-; addi a0, zero, 11 
-; addi a1, zero, 7 
-; call find_neighbours 
-; add a0, v0, zero 
-; add a1, v1, zero 
-; call cell_fate 
- ;call update_gsa 
-; call clear_leds 
-; addi a0, zero, 256 
-; call set_gsa 
-; call draw_gsa 
- 
-; call reset_game 
- ; call draw_gsa 
-; addi a0, zero, 20 
-; call select_action 
-; addi a0, zero, 20 
-; call select_action 
-; addi a0, zero, 12 
-; call select_action 
-; addi a0, zero, 1 
-; call select_action 
-; addi a0, zero, 1 
-; call update_state 
-; addi a0, zero, 1 
-; call select_action 
-; addi a0, zero, 1 
-; call update_state 
-; addi a0, zero, 1 
-; call select_action 
-; addi a0, zero, 1 
-; call update_state 
-; addi a0, zero, 12 
-; call select_action 
-; addi a0, zero, 2 
-; call select_action 
-; addi a0, zero, 2 
-; call update_state 
-; addi a0, zero, 1 
-; call select_action 
-; addi a0, zero, 1 
-; call select_action 
-; addi a0, zero, 2 
-; call select_action 
-; addi a0, zero, 2 
-; call select_action 
-; addi a0, zero, 4 
-; call select_action 
-; addi a0, zero, 16 
-; call select_action 
-; addi a0, zero, 8 
-; call select_action 
-; addi a0, zero, 8 
-; call update_state 
-; addi a0, zero, 1 
-; call select_action 
-; addi a0, zero, 1 
-; call select_action 
-; addi a0, zero, 2 
-; call select_action 
-; addi a0, zero, 2 
-; call update_state 
-call reset_game 
-call pause_game 
-call increment_seed 
-call draw_gsa  
-call clear_leds 
-call increment_seed 
-call draw_gsa 
-call clear_leds 
-call increment_seed 
-call draw_gsa 
-call clear_leds 
-call increment_seed 
-;call increment_seed 
-;call draw_gsa 
- 
 
 end: 
 	break 
@@ -286,16 +113,13 @@ set_pixel:
         or t6, t6, t7
         stw t6, LEDS+8(zero)
         ret
-
 ; END:set_pixel
-
 
 ; BEGIN:wait
 wait:
     addi t0, zero, 1
     slli t0, t0, 19
     ldw t1, SPEED(zero)
-
     loop:
         sub t0, t0, t1
         bge t0, zero, loop
@@ -362,7 +186,6 @@ addi t3, zero, N_GSA_LINES
     stw t0, CUSTOM_VAR_END(sp)
     addi sp, sp, -4 
     stw a0, CUSTOM_VAR_END(sp)
-    ;stw s3, CUSTOM_VAR_END(sp)
 
     call get_gsa
 
@@ -379,18 +202,16 @@ addi t3, zero, N_GSA_LINES
     ldw ra, CUSTOM_VAR_END(sp)
     addi sp, sp, 4
 
-    ;add ra, s3, zero
     bne t0, t3, ITER_LINE
     ret
     
-
     ITER_LINE : 
         addi t1, zero, -1 ; iterateur entre 0 et 3
         br ITER_LED0
         ret
         
         ITER_LED0 : 
-        addi t5, zero, 1 ; mask 
+        addi t5, zero, 1 ; masl
         addi t4, t4, 1
         sll t5, t5, t4 ; mask le bit qu'on veut recuperer  
         addi t1, t1, 1 
@@ -574,6 +395,8 @@ ret
 increment_seed: 
  addi sp, sp, -4
  stw ra, CUSTOM_VAR_END(sp)
+
+
     ldw t1, CURR_STATE(zero) ; current state 
     addi t0, zero, INIT ; state INIT 
     addi t3, zero, RAND ; state RAND
@@ -596,39 +419,43 @@ increment_seed:
 
         SET_G2 :
    slli t6, t2, 2
-            ldw t5, SEEDS(t6)
+   ldw t5, SEEDS(t6)
    add t5, t5, s5
-      ldw a0, 0(t5)
+   ldw a0, 0(t5)
    addi sp, sp, -4
-   stw ra, CUSTOM_VAR_END(sp)
-      addi sp, sp, -4
-            stw t2, CUSTOM_VAR_END(sp)
-      addi sp, sp, -4
-            stw t5, CUSTOM_VAR_END(sp)
+   ;stw ra, CUSTOM_VAR_END(sp)
+   ;addi sp, sp, -4
+   stw t2, CUSTOM_VAR_END(sp)
    addi sp, sp, -4
-      stw s0, CUSTOM_VAR_END(sp)
-            call set_gsa
-      ldw s0, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
-     ldw t5, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
-      ldw t2, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
+   stw t5, CUSTOM_VAR_END(sp)
+   addi sp, sp, -4
+   stw s0, CUSTOM_VAR_END(sp)
+   call set_gsa
+   ldw s0, CUSTOM_VAR_END(sp)
+   addi sp, sp, 4
+   ldw t5, CUSTOM_VAR_END(sp)
+   addi sp, sp, 4
+   ldw t2, CUSTOM_VAR_END(sp)
+   addi sp, sp, 4
+
+
+   addi s5, s5, 4 ; next word
+   addi a1, a1, 1
+   bne a1, s0, SET_G2
    ldw ra, CUSTOM_VAR_END(sp)
    addi sp, sp, 4
-            addi s5, s5, 4 ; next word
-      addi a1, a1, 1
-            bne a1, s0, SET_G2
-            ret
+   ret
 
         RAND_STATE :
+			;addi sp, sp, -4
+            ;stw ra, CUSTOM_VAR_END(sp)
             addi sp, sp, -4
             stw t2, CUSTOM_VAR_END(sp)
             call random_gsa
             ldw t2, CUSTOM_VAR_END(sp)
             addi sp, sp, 4
-   stw ra, CUSTOM_VAR_END(sp)
-   addi sp, sp, 4
+            ldw ra, CUSTOM_VAR_END(sp)
+            addi sp, sp, 4
             addi t2, zero, 4
             stw t2, SEED(zero)
             ret
@@ -1105,7 +932,26 @@ find_neighbours:
             srli s1, s1, 29 ; on prend les 3 LSB = mod 8
             add a0, zero, s1
             add t5, zero, ra
+
+			addi sp, sp, -4
+			stw t4, CUSTOM_VAR_END(sp)
+			addi sp, sp, -4
+			stw t5, CUSTOM_VAR_END(sp)
+			addi sp, sp, -4
+			stw t0, CUSTOM_VAR_END(sp)
+			addi sp, sp, -4
+			stw s0, CUSTOM_VAR_END(sp)
+
             call get_gsa
+
+			ldw s0, CUSTOM_VAR_END(sp)
+			addi sp, sp, 4
+			ldw t0, CUSTOM_VAR_END(sp)
+			addi sp, sp, 4
+			ldw t5, CUSTOM_VAR_END(sp)
+			addi sp, sp, 4
+			ldw t4, CUSTOM_VAR_END(sp)
+			addi sp, sp, 4 
             add ra, zero, t5
             addi t0, zero, 1 ; create mask
             sll t0, t0, s0 ; shift mask
@@ -1135,41 +981,41 @@ update_gsa:
 addi sp, sp, -4
 stw ra, CUSTOM_VAR_END(sp)
 ldw t0, PAUSE(zero)
-add t2, zero, zero ; col
 addi t3, zero, 12 ; MX  x
 addi t4, zero, 8 ; max y
 addi t5, zero, 11
 addi t7, zero, 0 ; gsa 
+add t1, zero, zero ; iter ligne
 bne t0, zero, ITERY
 
 ITERY : 
-    add t1, zero, zero ; x
+	addi t2, zero, 0 ; col
 
-    ITERX :
+   ITERX :
+	    addi sp, sp, -4
         stw t0, CUSTOM_VAR_END(sp)
+	 	addi sp, sp, -4
+       stw t1, CUSTOM_VAR_END(sp)
         addi sp, sp, -4
-        stw t1, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4 
         stw t2, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4 
+        addi sp, sp, -4
         stw t3, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4 
+       addi sp, sp, -4 
         stw t4, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4 
+       addi sp, sp, -4  
         stw t5, CUSTOM_VAR_END(sp)
         addi sp, sp, -4 
         stw t7, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4
+        addi sp, sp, -4 
         stw s0, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4
 
         add a0, zero, t2
         add a1, zero, t1
         call find_neighbours
 
-        add a0, v0, zero ; donne le nb de live neighbours 
-        add a1, v1, zero ;donne le state de la cell 
-        call cell_fate
+       add a0, v0, zero ; donne le nb de live neighbours  
+       add a1, v1, zero ;donne le state de la cell 
+       call cell_fate
         ldw s0, CUSTOM_VAR_END(sp)
         addi sp, sp, 4
         ldw t7, CUSTOM_VAR_END(sp)
@@ -1182,21 +1028,21 @@ ITERY :
         addi sp, sp, 4
         ldw t2, CUSTOM_VAR_END(sp)
         addi sp, sp, 4
-        ldw t1, CUSTOM_VAR_END(sp)
+       ldw t1, CUSTOM_VAR_END(sp)
         addi sp, sp, 4
         ldw t0, CUSTOM_VAR_END(sp)
         addi sp, sp, 4
 
-        sll t6, v0, t5
+   	    sll t6, v0, t5
         or t7, t7, t6 
         addi t5, t5, -1 
         addi t2, t2, 1 
         bne t2, t3, ITERX
 
+		addi sp, sp, -4
         stw t6, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4
+		addi sp, sp, -4
         stw t7, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4
         add a0, t7, zero
         add a1, zero, t1
         call set_gsa
@@ -1213,28 +1059,33 @@ ITERY :
             ID0 :
                 stw s1, GSA_ID(zero) ; next ID 
                 ldw ra, CUSTOM_VAR_END(sp)
+				addi sp, sp, 4 
                 ret
             
             ID1 : 
                 stw zero, GSA_ID(zero) ; next ID 
                 ldw ra, CUSTOM_VAR_END(sp)
+				addi sp, sp, 4
                 ret
 ret
 ; END:update_gsa 
+
 
 ; BEGIN:mask
 mask:
     ldw t4, SEED(zero)
     addi t1, zero, -1 ; index line
     addi t2, zero, N_GSA_LINES
+    slli t4, t4, 2 ; fois 4
+    ldw t3, MASKS(t4) ; mask
+ 	add t7, zero, zero
 
     LOOP_LINE: 
         addi t1, t1, 1
-        stw t3, MASKS(t4) ; mask
-        addi t4, t4, 4 ; next word
+        ldw t6, 0(t3)
+  		addi t3, t3, 4
         add a0, zero, t1
         add t5, ra, zero
-
         addi sp, sp, -4 
         stw t1, CUSTOM_VAR_END(sp)
         addi sp, sp, -4 
@@ -1246,9 +1097,13 @@ mask:
         addi sp, sp, -4 
         stw t5, CUSTOM_VAR_END(sp)
         addi sp, sp, -4 
+  		stw t6, CUSTOM_VAR_END(sp)
+        addi sp, sp, -4
         stw a0, CUSTOM_VAR_END(sp)
         call get_gsa
         ldw a0, CUSTOM_VAR_END(sp)
+        addi sp, sp, 4
+  		ldw t6, CUSTOM_VAR_END(sp)
         addi sp, sp, 4 
         ldw t5, CUSTOM_VAR_END(sp)
         addi sp, sp, 4 
@@ -1261,26 +1116,42 @@ mask:
         ldw t1, CUSTOM_VAR_END(sp)
         addi sp, sp, 4 
 
-        and t3, t3, v0 ; masked
+        and t6, t6, v0 ; masked
         add a1, zero, a0
-        add a0, zero, t3
+        add a0, zero, t6
 
-        addi sp, sp, -4 
+       addi sp, sp, -4 
         stw t1, CUSTOM_VAR_END(sp)
         addi sp, sp, -4 
         stw t2, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4
+        addi sp, sp, -4 
+        stw t3, CUSTOM_VAR_END(sp)
+        addi sp, sp, -4 
+        stw t4, CUSTOM_VAR_END(sp)
+        addi sp, sp, -4 
         stw t5, CUSTOM_VAR_END(sp)
+        addi sp, sp, -4 
+  		stw t6, CUSTOM_VAR_END(sp)
+        addi sp, sp, -4
+  		stw t7, CUSTOM_VAR_END(sp)
         call set_gsa
+        ldw t7, CUSTOM_VAR_END(sp)
+        addi sp, sp, 4 
+  		ldw t6, CUSTOM_VAR_END(sp)
+        addi sp, sp, 4 
         ldw t5, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4
+        addi sp, sp, 4 
+        ldw t4, CUSTOM_VAR_END(sp)
+        addi sp, sp, 4 
+        ldw t3, CUSTOM_VAR_END(sp)
+        addi sp, sp, 4 
         ldw t2, CUSTOM_VAR_END(sp)
         addi sp, sp, 4 
         ldw t1, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4
+        addi sp, sp, 4 
         add ra, zero, t5
         bne t1, t2, LOOP_LINE
-ret
+ ret
 ; END:mask
 
 
@@ -1317,54 +1188,53 @@ decrement_step:
             ret
             
         RUN_1_CASE:
-            addi t2, t2, -1 ; decrement number of steps
+   addi t2, t2, -1 ; decrement number of steps
             stw t2, CURR_STEP(zero) ; store it
-            ldw t1, CURR_STEP(zero) ; first digit
-            slli t1, t1, 2 ; multiply by 4
-            ldw t7, font_data(t1) ; t7 = the char to display
-            stw t7, SEVEN_SEGS(zero) ; store it in segs0
-            addi a2, zero, 1
-            ldw t1, CURR_STEP(a2) ; second digit
-            slli t1, t1, 2 ; multiply by 4
-            ldw t7, font_data(t1) ; t7 = the char to display
-            stw t7, SEVEN_SEGS(s2) ; store it in segs1
-            addi a2, zero, 2
-            ldw t1, CURR_STEP(a2) ; third digit
-            slli t1, t1, 2 ; multiply by 4
-            ldw t7, font_data(t1) ; t7 = the char to display
-            stw t7, SEVEN_SEGS(s2) ; store it in segs2
-            addi a2, zero, 3
-            ldw t1, CURR_STEP(a2) ; fourth digit
-            slli t1, t1, 2 ; multiply by 4
-            ldw t7, font_data(t1) ; t7 = the char to display
-            stw t7, SEVEN_SEGS(s2) ; store it in segs3
             addi v0, zero, 0 ; return 0
+   jmpi WRITE_SEG
             ret
 
         INIT_OR_RAND_CASE:
-            ldw t1, CURR_STEP(zero) ; first digit
+   addi v0, zero, 1 ; return 0
+            jmpi WRITE_SEG
+            ret   
+
+  WRITE_SEG:
+   ldw t1, CURR_STEP(zero) ; first digit
+   addi s3, zero, 15 ; mask 000F
+   and t1, t1, s3 ; apply mask
+            slli t1, t1, 2 ; multiply by 4
+            ldw t7, font_data(t1) ; t7 = the char to display
+            addi s2, zero, 12
+            stw t7, SEVEN_SEGS(s2) ; store it in segs3
+            ldw t1, CURR_STEP(zero) ; second digit
+   slli s3, s3, 4 ; mask 00F0
+   and t1, t1, s3 ; apply mask
+   srli t1, t1, 4
+            slli t1, t1, 2 ; multiply by 4
+            ldw t7, font_data(t1) ; t7 = the char to display
+            addi s2, zero, 8
+            stw t7, SEVEN_SEGS(s2) ; store it in segs2
+            ldw t1, CURR_STEP(zero) ; third digit
+   slli s3, s3, 4 ; mask 0F00
+   and t1, t1, s3 ; apply mask
+   srli t1, t1, 8
+            slli t1, t1, 2 ; multiply by 4
+            ldw t7, font_data(t1) ; t7 = the char to display
+            addi s2, zero, 4
+            stw t7, SEVEN_SEGS(s2) ; store it in segs1
+            ldw t1, CURR_STEP(zero) ; fourth digit
+   slli s3, s3, 4 ; mask F000
+   and t1, t1, s3 ; apply mask
+   srli t1, t1, 12
             slli t1, t1, 2 ; multiply by 4
             ldw t7, font_data(t1) ; t7 = the char to display
             stw t7, SEVEN_SEGS(zero) ; store it in segs0
-            addi a2, zero, 1
-            ldw t1, CURR_STEP(a2) ; second digit
-            slli t1, t1, 2 ; multiply by 4
-            ldw t7, font_data(t1) ; t7 = the char to display
-            stw t7, SEVEN_SEGS(s2) ; store it in segs1
-            addi a2, zero, 2
-            ldw t1, CURR_STEP(a2) ; third digit
-            slli t1, t1, 2 ; multiply by 4
-            ldw t7, font_data(t1) ; t7 = the char to display
-            stw t7, SEVEN_SEGS(s2) ; store it in segs2
-            addi a2, zero, 3
-            ldw t1, CURR_STEP(a2) ; fourth digit
-            slli t1, t1, 2 ; multiply by 4
-            ldw t7, font_data(t1) ; t7 = the char to display
-            stw t7, SEVEN_SEGS(s2) ; store it in segs3
-            addi v0, zero, 1 ; return 0
-            ret    
+   ret  
+ 
     ret
 ; END:decrement_step
+
 
 
 ; BEGIN:reset_game 
