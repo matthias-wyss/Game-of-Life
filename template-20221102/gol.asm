@@ -29,32 +29,32 @@
     .equ RUNNING, 0x01
 
 main:
-  ; FINAL : 
-  ; call reset_game 
-  ; call get_input
-  ; add t0, zero, v0 ; edgecapture 
-  ; add t1, zero, zero 
-  ; bne t1, zero, SUITE
+   FINAL : 
+   call reset_game 
+   call get_input
+   add t0, zero, v0 ; edgecapture 
+   add t1, zero, zero 
+   bne t1, zero, SUITE
 
-   ;SUITE : 
-   ;add a0, t0, zero 
-   ;addi sp, sp, -4
-   ;stw t0, CUSTOM_VAR_END(sp)
-   ;call select_action
-   ;ldw t0, CUSTOM_VAR_END(sp)
-   ;addi sp, sp, 4
-   ;add a0, zero, t0
-   ;call update_state
-   ;call update_gsa 
-   ;call mask 
-   ;call draw_gsa
-   ;call wait 
-   ;call decrement_step
-   ;add t1, zero, v0
-   ;call get_input
-   ;add t0, v0, zero 
-   ;beq t1, zero, SUITE
-   ;beq zero, zero, FINAL
+   SUITE : 
+   add a0, t0, zero 
+   addi sp, sp, -4
+   stw t0, CUSTOM_VAR_END(sp)
+   call select_action
+   ldw t0, CUSTOM_VAR_END(sp)
+   addi sp, sp, 4
+   add a0, zero, t0
+   call update_state
+   call update_gsa 
+   call mask 
+   call draw_gsa
+   call wait 
+   call decrement_step
+   add t1, zero, v0
+   call get_input
+   add t0, v0, zero 
+   beq t1, zero, SUITE
+   beq zero, zero, FINAL
 
 end: 
 	break 
@@ -1090,11 +1090,7 @@ mask:
         stw t1, CUSTOM_VAR_END(sp)
         addi sp, sp, -4 
         stw t2, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4 
-        stw t3, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4 
-        stw t4, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4 
+        addi sp, sp, -4   
         stw t5, CUSTOM_VAR_END(sp)
         addi sp, sp, -4 
   		stw t6, CUSTOM_VAR_END(sp)
@@ -1106,11 +1102,7 @@ mask:
   		ldw t6, CUSTOM_VAR_END(sp)
         addi sp, sp, 4 
         ldw t5, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4 
-        ldw t4, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4 
-        ldw t3, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4 
+        addi sp, sp, 4   
         ldw t2, CUSTOM_VAR_END(sp)
         addi sp, sp, 4 
         ldw t1, CUSTOM_VAR_END(sp)
@@ -1120,30 +1112,14 @@ mask:
         add a1, zero, a0
         add a0, zero, t6
 
-       addi sp, sp, -4 
+        addi sp, sp, -4 
         stw t1, CUSTOM_VAR_END(sp)
         addi sp, sp, -4 
         stw t2, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4 
-        stw t3, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4 
-        stw t4, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4 
+        addi sp, sp, -4   
         stw t5, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4 
-  		stw t6, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4
-  		stw t7, CUSTOM_VAR_END(sp)
-        call set_gsa
-        ldw t7, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4 
-  		ldw t6, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4 
+        call set_gsa  
         ldw t5, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4 
-        ldw t4, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4 
-        ldw t3, CUSTOM_VAR_END(sp)
         addi sp, sp, 4 
         ldw t2, CUSTOM_VAR_END(sp)
         addi sp, sp, 4 
