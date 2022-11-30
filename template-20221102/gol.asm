@@ -27,34 +27,53 @@
     .equ MIN_SPEED, 1
     .equ PAUSED, 0x00
     .equ RUNNING, 0x01
-
+    
+addi sp, zero, CUSTOM_VAR_END 
 main:
-   FINAL : 
-   call reset_game 
-   call get_input
-   add t0, zero, v0 ; edgecapture 
-   add t1, zero, zero 
-   bne t1, zero, SUITE
+ ;  FINAL : 
+ ;  call reset_game 
+ ;  call get_input
+ ;  add t0, zero, v0 ; edgecapture 
+ ;  add t1, zero, zero 
+ ;  bne t1, zero, SUITE
 
-   SUITE : 
-   add a0, t0, zero 
-   addi sp, sp, -4
-   stw t0, CUSTOM_VAR_END(sp)
-   call select_action
-   ldw t0, CUSTOM_VAR_END(sp)
-   addi sp, sp, 4
-   add a0, zero, t0
-   call update_state
-   call update_gsa 
-   call mask 
-   call draw_gsa
-   call wait 
-   call decrement_step
-   add t1, zero, v0
-   call get_input
-   add t0, v0, zero 
-   beq t1, zero, SUITE
-   beq zero, zero, FINAL
+ ;  SUITE : 
+ ;  add a0, t0, zero 
+ ;  addi sp, sp, -4
+ ;  stw t0, CUSTOM_VAR_END(sp)
+ ;  call select_action
+ ;  ldw t0, CUSTOM_VAR_END(sp)
+ ;  addi sp, sp, 4
+ ;  add a0, zero, t0
+ ;  call update_state
+ ;  call update_gsa 
+ ;  call mask 
+ ;  call draw_gsa
+ ;  call wait 
+ ;  call decrement_step
+ ;  add t1, zero, v0
+ ;  call get_input
+ ;  add t0, v0, zero 
+ ;  beq t1, zero, SUITE
+ ;  beq zero, zero, FINAL
+;addi a0, zero, 2
+;addi a1, zero, 0
+;call cell_fate 
+call reset_game
+call draw_gsa  
+call pause_game 
+call increment_seed 
+call draw_gsa 
+call update_gsa  
+call clear_leds 
+call draw_gsa 
+
+;addi a0, zero, 1 
+;addi a1, zero, 0
+;call set_gsa 
+;call update_gsa 
+
+
 
 end: 
 	break 
@@ -165,6 +184,15 @@ ret
 
 ; BEGIN:draw_gsa 
 draw_gsa: 
+addi sp, sp, -20
+stw ra, 0(sp)
+stw s4, 4(sp)
+stw s5, 8(sp)
+stw s6, 12(sp)
+stw s7, 16(sp)
+
+call clear_leds 
+
 addi t0, zero, -1 ; iter sur y de 0 a 7
 addi t3, zero, N_GSA_LINES
     ITER_Y : 
@@ -174,44 +202,32 @@ addi t3, zero, N_GSA_LINES
     addi a0, t0, 0 ; pour recup call gsa (numero de la ligne)
    ; add s3, ra, zero
 
-    addi sp, sp, -4 
-    stw ra, CUSTOM_VAR_END(sp)
-    addi sp, sp, -4  
-    stw t3, CUSTOM_VAR_END(sp)
-    addi sp, sp, -4 
-    stw t7, CUSTOM_VAR_END(sp)
-    addi sp, sp, -4 
-    stw t4, CUSTOM_VAR_END(sp)
-    addi sp, sp, -4 
-    stw t0, CUSTOM_VAR_END(sp)
-    addi sp, sp, -4 
-    stw a0, CUSTOM_VAR_END(sp)
+    addi sp, sp, -16
+    stw t0, 0(sp)
+    stw t3, 4(sp)
+    stw t4, 8(sp)
+    stw t7, 12(sp)
 
     call get_gsa
 
-    ldw a0, CUSTOM_VAR_END(sp)
-    addi sp, sp, 4
-    ldw t0, CUSTOM_VAR_END(sp)
-    addi sp, sp, 4
-    ldw t4, CUSTOM_VAR_END(sp)
-    addi sp, sp, 4
-    ldw t7, CUSTOM_VAR_END(sp)
-    addi sp, sp, 4
-    ldw t3, CUSTOM_VAR_END(sp)
-    addi sp, sp, 4
-    ldw ra, CUSTOM_VAR_END(sp)
-    addi sp, sp, 4
+    ldw t7, 12(sp)
+    ldw t4, 8(sp)
+    ldw t3, 4(sp)
+    ldw t0, 0(sp)
+    addi sp, sp, 16
 
+    ;add ra, s3, zero
     bne t0, t3, ITER_LINE
     ret
     
+
     ITER_LINE : 
         addi t1, zero, -1 ; iterateur entre 0 et 3
         br ITER_LED0
         ret
         
         ITER_LED0 : 
-        addi t5, zero, 1 ; masl
+        addi t5, zero, 1 ; mask 
         addi t4, t4, 1
         sll t5, t5, t4 ; mask le bit qu'on veut recuperer  
         addi t1, t1, 1 
@@ -266,60 +282,57 @@ addi t3, zero, N_GSA_LINES
             bne t1, t7, ITER_LED2
             addi s7, t0, 1 
             bne s7, t3, ITER_Y
+
+            ldw s7, 16(sp)
+            ldw s6, 12(sp)
+            ldw s5, 8(sp)
+            ldw s4, 4(sp)
+            ldw ra, 0(sp)
+            addi sp, sp, 24
+
             ret
     ret
 ; END:draw_gsa
 
 ; BEGIN:random_gsa 
 random_gsa: 
-		addi t6, zero, 7
-        add s1, zero, zero ; iterateur sur Y
-		br OKLM 
-	OKLM : 
-	add t1, zero, zero ;;0  
-    addi t2, zero, 12   ;; 11 MAX
+  addi t6, zero, 7
+  br OKLM 
+ OKLM : 
+ add t1, zero, zero ;;0  
+    addi t2, zero, 11   ;; 11 MAX
     add t5, zero, zero ;; GSA 
-    ;ldw t0, GSA_ID(zero)
     addi t0, zero, 8
-	br ITER 
-   ; addi s1, zero, 12 
+ br ITER 
     ITER :
         ldw t3, RANDOM_NUM(zero) ; On prend un random num 
         andi t4, t3, 1 ; On recupere le LSB de random_num 
         sll t4, t4, t1 ; on le shift auquel on veut le mettre dans le gsa 
         or t5, t5, t4 ;on OR pour introduire dans gsa 
         addi t1, t1, 1 ; + 1 a l'iteration 
-		bne t1, t2, ITER
-		beq t1, t2, SET_G
+  bne t1, t2, ITER
+  beq t1, t2, SET_G
 
     SET_G : 
         add a0, t5, zero 
-        add a1, s1, zero
-		;add s1, zero, ra
+        add a1, t6, zero
 
-        addi sp, sp, -4 
-        stw ra, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4 
-        stw t6, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4 
-        stw t0, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4 
-        stw s1, CUSTOM_VAR_END(sp) 
+        addi sp, sp, -12
+        stw ra, 0(sp)
+        stw t0, 4(sp)
+        stw t6, 8(sp)
 
         call set_gsa
-        ldw s1, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4
-        ldw t0, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4
-        ldw t6, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4
-        ldw ra, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4
-		;add ra, s1, zero
-        addi s1, s1, 1
-        bne s1, t0, OKLM 
-		ret   
-ret		 
+
+        ldw t6, 8(sp)
+        ldw t0, 4(sp)
+        ldw ra, 0(sp)
+        addi sp, sp, 12
+
+        addi t6, t6, 1
+        bne t6, t0, OKLM 
+  ret   
+ret   
 ; END:random_gsa 
 
 ; BEGIN:change_speed 
@@ -331,20 +344,29 @@ change_speed:
         beq a0, zero, INCREMENT
         bne a0, zero, DECREMENT
 
-            INCREMENT : 
+            INCREMENT: 
             bne t1, t2, ADD1
+            beq t1, t2, STAY
 
-                ADD1 : 
+                ADD1: 
                 addi t1, t1, 1
                 stw t1, SPEED(zero)            
-            ret 
-            DECREMENT : 
+                ret 
+
+                STAYMX: 
+                stw t1, SPEED(zero)
+                ret
+            DECREMENT: 
             bne t1, t3, SUB1
 
-                SUB1 : 
+                SUB1: 
                 addi t1, t1, -1
                 stw t1, SPEED(zero)
-            ret
+                ret
+
+                STAYMIN: 
+                stw t1, SPEED(zero)
+                ret
     ret
 ; END:change_speed
 
@@ -371,41 +393,44 @@ pause_game:
 change_steps:
     ldw t0, CURR_STEP(zero) 
     bne a0, zero, UNITS
-    bne a1, zero, TENS 
+    return_cs1:
+    bne a1, zero, TENS
+    return_cs2:
     bne a2, zero, HUNDREDS
 
     UNITS :
         addi t0, t0, 1
         stw t0, CURR_STEP(zero)
-        ret
+        jmpi return_cs1
 
     TENS :
-        addi t0, t0, 10
+        addi t0, t0, 16
         stw t0, CURR_STEP(zero)
-        ret
+        jmpi return_cs2
 
     HUNDREDS :
         addi t0, t0, 256
         stw t0, CURR_STEP(zero)
         ret
-ret
+    ret
 ; END:change_steps
 
 ; BEGIN:increment_seed
 increment_seed: 
- addi sp, sp, -4
- stw ra, CUSTOM_VAR_END(sp)
-
+    addi sp, sp, -12
+    stw ra, 0(sp)
+    stw s0, 4(sp)
+    stw s5, 8(sp)
 
     ldw t1, CURR_STATE(zero) ; current state 
     addi t0, zero, INIT ; state INIT 
     addi t3, zero, RAND ; state RAND
- add t4, zero, zero
+    add t4, zero, zero
     add t6, zero, zero
- add s5, zero, zero
+    add s5, zero, zero
     addi t7, zero, N_SEEDS
     addi s0, zero, N_GSA_LINES
- add a1, zero, zero
+    add a1, zero, zero
     beq t0, t1, INIT_STATE   ; case currenstate equals INIT state 
     beq t3, t1, RAND_STATE
 
@@ -418,60 +443,63 @@ increment_seed:
             ret
 
         SET_G2 :
-   slli t6, t2, 2
-   ldw t5, SEEDS(t6)
-   add t5, t5, s5
-   ldw a0, 0(t5)
-   addi sp, sp, -4
-   ;stw ra, CUSTOM_VAR_END(sp)
-   ;addi sp, sp, -4
-   stw t2, CUSTOM_VAR_END(sp)
-   addi sp, sp, -4
-   stw t5, CUSTOM_VAR_END(sp)
-   addi sp, sp, -4
-   stw s0, CUSTOM_VAR_END(sp)
-   call set_gsa
-   ldw s0, CUSTOM_VAR_END(sp)
-   addi sp, sp, 4
-   ldw t5, CUSTOM_VAR_END(sp)
-   addi sp, sp, 4
-   ldw t2, CUSTOM_VAR_END(sp)
-   addi sp, sp, 4
+      slli t6, t2, 2
+            ldw t5, SEEDS(t6)
+     add t5, t5, s5
+        ldw a0, 0(t5)
+     
+            addi sp, sp, -8
+            stw t2, 0(sp)
+            stw s0, 4(sp)
 
-
-   addi s5, s5, 4 ; next word
-   addi a1, a1, 1
-   bne a1, s0, SET_G2
-   ldw ra, CUSTOM_VAR_END(sp)
-   addi sp, sp, 4
-   ret
+            call set_gsa
+        
+            ldw s0, 4(sp)
+            ldw t2, 0(sp)
+            addi sp, sp, 8
+      
+            addi s5, s5, 4 ; next word
+        addi a1, a1, 1
+            bne a1, s0, SET_G2
+            jmpi INCR_SEED_END
+            ret
 
         RAND_STATE :
-			;addi sp, sp, -4
-            ;stw ra, CUSTOM_VAR_END(sp)
             addi sp, sp, -4
-            stw t2, CUSTOM_VAR_END(sp)
+            stw t2, 0(sp)
             call random_gsa
-            ldw t2, CUSTOM_VAR_END(sp)
+            ldw t2, 0(sp)
             addi sp, sp, 4
-            ldw ra, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
+
             addi t2, zero, 4
             stw t2, SEED(zero)
+            jmpi INCR_SEED_END
             ret
+
+        INCR_SEED_END:
+            ldw s5, 8(sp)
+            ldw s0, 4(sp)
+            ldw ra, 0(sp)
+            addi sp, sp, 12
+            ret
+
  ret
 ; END:increment_seed
 
 
 ; BEGIN:update_state
 update_state:
+    addi sp, sp, -8
+    stw ra, 0(sp)
+    stw s0, 4(sp)
+
     ldw t0, CURR_STATE(zero) ; current state
     ldw s0, SEED(zero)
     addi t1, zero, INIT ; state INIT
     addi t2, zero, RAND ; state RAND
     addi t3, zero, RUN ; state RUN
     add t6, a0, zero ; edgecapture input
-    ;slli t6, t6, 27 ; on garde que les 5 buttons
+    slli t6, t6, 27 ; on garde que les 5 buttons
     addi t7, zero, N_SEEDS
     beq t0, t1, CASE_INIT
     beq t0, t2, CASE_RAND
@@ -480,20 +508,22 @@ update_state:
 
         CASE_INIT: 
             addi t4, zero, 1 ; mask for b0
-            ;slli t4, t4, 27 ; on garde que pour les 5 buttons
+            slli t4, t4, 27 ; on garde que pour les 5 buttons
             and t5, t4, t6 ; apply mask
             beq t5, t4, CHECK_EQUAL
         return_init_1:
             addi t4, zero, 2 ; mask for b1
-            ;slli t4, t4, 27 ; on garde que pour les 5 buttons
+            srli t6, t6, 27
             and t5, t4, t6 ; apply mask
             beq t5, t4, SET_RUN_1
         return_init_2:
             addi t4, zero, 29 ; mask for 11101
-            ;slli t4, t4, 27 ; on garde que pour les 5 buttons
+            slli t4, t4, 27 ; on garde que pour les 5 buttons
             and t5, t4, t6 ; apply mask
             beq t5, t4, CHECK_LOWER
         return_init_3:
+            ldw s0, 4(sp)
+            addi sp, sp, 8
             ret
             
             CHECK_EQUAL:
@@ -520,7 +550,7 @@ update_state:
 
         CASE_RAND:
             addi t4, zero, 2 ; mask for b1
-            slli t4, t4, 27 ; on garde que pour les 5 buttons
+            srli t6, t6, 27
             and t5, t4, t6 ; apply mask
             beq t5, t4, SET_RUN_2
         return_rand_1:
@@ -541,7 +571,7 @@ update_state:
 
         CASE_RUN:
             addi t4, zero, 8 ; mask for b3
-            slli t4, t4, 27 ; on garde que pour les 5 buttons
+            srli t6, t6, 27
             and t5, t4, t6 ; apply mask
             beq t5, t4, SET_INIT_AND_RESET
         return_run_1:
@@ -554,7 +584,9 @@ update_state:
 
             SET_INIT_AND_RESET:
                 stw t1, CURR_STATE(zero)
-                ;call reset_game
+                call reset_game
+                ldw ra, 0(sp)
+                addi sp, sp, 8
                 jmpi return_run_1
 
             SET_RUN_3:
@@ -563,11 +595,19 @@ update_state:
     ret    
 ; END:update_state
 
-
 ; BEGIN:select_action 
 select_action:
-    addi sp, sp, -4
-    stw ra, CUSTOM_VAR_END(sp)
+    addi sp, sp, -36
+    stw ra, 0(sp)
+    stw s0, 4(sp)
+    stw s1, 8(sp)
+    stw s2, 12(sp)
+    stw s3, 16(sp)
+    stw s4, 20(sp)
+    stw s5, 24(sp)
+    stw s6, 28(sp)
+    stw s7, 32(sp)
+
     ldw t0, CURR_STATE(zero)
     addi t2, zero, 3 ; SEED maximal 
     addi s0, zero, 1; 00001
@@ -598,8 +638,7 @@ select_action:
     or t1, t5, t6
     or t1, t1, t7
     beq t1, s0, BUTTON234
-    ldw ra, CUSTOM_VAR_END(sp)
-    addi sp, sp, 4
+    jmpi SEL_ACT_END
     ret
 
         
@@ -607,64 +646,45 @@ select_action:
             bne t2, t3, REGISTER 
 
             REGISTER : 
-                addi sp, sp, -4
-                stw a0, CUSTOM_VAR_END(sp)
-                addi sp, sp, -4
-                stw t0, CUSTOM_VAR_END(sp)
-                addi sp, sp, -4
-                stw t1, CUSTOM_VAR_END(sp)
-                addi sp, sp, -4 
-                stw t2, CUSTOM_VAR_END(sp)
-                addi sp, sp, -4 
-                stw t3, CUSTOM_VAR_END(sp)
-                addi sp, sp, -4 
-                stw t4, CUSTOM_VAR_END(sp)
-                addi sp, sp, -4
-                stw s0, CUSTOM_VAR_END(sp)
-                addi sp, sp, -4
-                stw t5, CUSTOM_VAR_END(sp)
-                addi sp, sp, -4
-                stw t6, CUSTOM_VAR_END(sp)
-                addi sp, sp, -4
-                stw t7, CUSTOM_VAR_END(sp)
+                addi sp, sp, -40
+                stw a0, 0(sp)
+                stw t0, 4(sp)
+                stw t1, 8(sp)
+                stw t2, 12(sp)
+                stw t3, 16(sp)
+                stw t4, 20(sp)
+                stw s0, 24(sp)
+                stw t5, 28(sp)
+                stw t6, 32(sp)
+                stw t7, 36(sp)
                 
                 call increment_seed
 
-                ldw t7, CUSTOM_VAR_END(sp)
-                addi sp, sp, 4
-                ldw t6, CUSTOM_VAR_END(sp)
-                addi sp, sp, 4
-                ldw t5, CUSTOM_VAR_END(sp)
-                addi sp, sp, 4
-                ldw s0, CUSTOM_VAR_END(sp)
-                addi sp, sp, 4
-                ldw t4, CUSTOM_VAR_END(sp)
-                addi sp, sp, 4
-                ldw t3, CUSTOM_VAR_END(sp)
-                addi sp, sp, 4
-                ldw t2, CUSTOM_VAR_END(sp)
-                addi sp, sp, 4
-                ldw t1, CUSTOM_VAR_END(sp)
-                addi sp, sp, 4
-                ldw t0, CUSTOM_VAR_END(sp)
-                addi sp, sp, 4
-                ldw a0, CUSTOM_VAR_END(sp)
-                addi sp, sp, 4
+                ldw t7, 36(sp)
+                ldw t6, 32(sp)
+                ldw t5, 28(sp)
+                ldw s0, 24(sp)
+                ldw t4, 20(sp)
+                ldw t3, 16(sp)
+                ldw t2, 12(sp)
+                ldw t1, 8(sp)
+                ldw t0, 4(sp)
+                ldw a0, 0(sp)
+                addi sp, sp, 40
+
                 jmpi INIT_S+12
 
         BUTTON234 : 
-                addi sp, sp, -4
-                stw a0, CUSTOM_VAR_END(sp)
-                addi sp, sp, -4
-                stw t0, CUSTOM_VAR_END(sp)
+                addi sp, sp, -8
+                stw a0, 0(sp)
+                stw t0, 4(sp)
                 add a0, zero, t7
                 add a1, zero, t6
                 add a2, zero, t5
                 call change_steps
-                ldw t0, CUSTOM_VAR_END(sp)
-                addi sp, sp, 4
-                ldw a0, CUSTOM_VAR_END(sp)
-                addi sp, sp, 4
+                ldw t0, 4(sp)
+                ldw a0, 0(sp)
+                addi sp, sp, 8
                 jmpi INIT_S+48
 
     RAND_S : 
@@ -679,65 +699,47 @@ select_action:
         or t1, t5, t6
         or t1, t1, t7
         beq t1, s0, BUTTON234_R
-        ldw ra, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4
+        jmpi SEL_ACT_END
         ret
 
         BUTTON0_R : 
-            addi sp, sp, -4
-            stw t0, CUSTOM_VAR_END(sp)
-            addi sp, sp, -4
-            stw t1, CUSTOM_VAR_END(sp)
-            addi sp, sp, -4
-            stw t2, CUSTOM_VAR_END(sp)
-            addi sp, sp, -4
-            stw t3, CUSTOM_VAR_END(sp)
-            addi sp, sp, -4
-            stw t4, CUSTOM_VAR_END(sp)
-            addi sp, sp, -4
-            stw t5, CUSTOM_VAR_END(sp)
-            addi sp, sp, -4
-            stw t6, CUSTOM_VAR_END(sp)
-            addi sp, sp, -4
-            stw t7, CUSTOM_VAR_END(sp)
+            addi sp, sp, -32
+            stw t0, 0(sp)
+            stw t1, 4(sp)
+            stw t2, 8(sp)
+            stw t3, 12(sp)
+            stw t4, 16(sp)
+            stw t5, 20(sp)
+            stw t6, 24(sp)
+            stw t7, 28(sp)
 
             call random_gsa
             
-            ldw t7, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
-            ldw t6, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
-            ldw t5, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
-            ldw t4, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
-            ldw t3, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
-            ldw t2, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
-            ldw t1, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
-            ldw t0, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
+            ldw t7, 28(sp)
+            ldw t6, 24(sp)
+            ldw t5, 20(sp)
+            ldw t4, 16(sp)
+            ldw t3, 12(sp)
+            ldw t2, 8(sp)
+            ldw t1, 4(sp)
+            ldw t0, 0(sp)
+            addi sp, sp, 32
             jmpi RAND_S+8
 
          BUTTON234_R : 
-            addi sp, sp, -4
-            stw a0, CUSTOM_VAR_END(sp)
-            addi sp, sp, -4
-            stw t0, CUSTOM_VAR_END(sp)
+            addi sp, sp, -8
+            stw a0, 0(sp)
+            stw t0, 4(sp)
             add a0, zero, t7
             add a1, zero, t6
             add a2, zero, t5
             call change_steps
-            ldw t0, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
-            ldw a0, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
-            jmpi RAND_S+44 
+            ldw t0, 4(sp)
+            ldw a0, 0(sp)
+            addi sp, sp, 8
+            jmpi RAND_S+44
 
-
-    RUN_S : 
+RUN_S : 
         and t4, s0, a0 ; to see if button 0 is pressed 
         beq t4, s0, BUTTON0_RUN
         and t1, s1, a0
@@ -746,83 +748,76 @@ select_action:
         beq t5, s2, BUTTON2_RUN
         and t7, s4, a0 ; to see if button 4 is pressed 
         beq t7, s4, BUTTON4_RUN
-        ldw ra, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4
+        jmpi SEL_ACT_END
         ret
         
         BUTTON0_RUN : 
-            addi sp, sp, -4
-            stw t1, CUSTOM_VAR_END(sp)
-            addi sp, sp, -4
-            stw t2, CUSTOM_VAR_END(sp)
-            addi sp, sp, -4
-            stw t3, CUSTOM_VAR_END(sp)
-            addi sp, sp, -4
+            addi sp, sp, -12
+            stw t1, 0(sp)
+            stw t2, 4(sp)
+            stw t3, 8(sp)
 
             call pause_game
 
-            ldw t3, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
-            ldw t2, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
-            ldw t1, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
+            ldw t3, 8(sp)
+            ldw t2, 4(sp)
+            ldw t1, 0(sp)
+            addi sp, sp, 12
             jmpi RUN_S+8
         
         BUTTON1_RUN : 
-            addi sp, sp, -4
-            stw t1, CUSTOM_VAR_END(sp)
-            addi sp, sp, -4
-            stw t2, CUSTOM_VAR_END(sp)
-            addi sp, sp, -4
-            stw t3, CUSTOM_VAR_END(sp)
-            addi sp, sp, -4
-            stw a0, CUSTOM_VAR_END(sp)
-            addi sp, sp, -4
+            addi sp, sp, -16
+            stw t1, 0(sp)
+            stw t2, 4(sp)
+            stw t3, 8(sp)
+            stw a0, 12(sp)
 
             addi a0, zero, 0
             call change_speed
 
-            ldw a0, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
-            ldw t3, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
-            ldw t2, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
-            ldw t1, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
+            ldw a0, 12(sp)
+            ldw t3, 8(sp)
+            ldw t2, 4(sp)
+            ldw t1, 0(sp)
+            addi sp, sp, 16
             jmpi RUN_S+16
 
         BUTTON2_RUN : 
-            addi sp, sp, -4
-            stw t1, CUSTOM_VAR_END(sp)
-            addi sp, sp, -4
-            stw t2, CUSTOM_VAR_END(sp)
-            addi sp, sp, -4
-            stw t3, CUSTOM_VAR_END(sp)
-            addi sp, sp, -4
-            stw a0, CUSTOM_VAR_END(sp)
-            addi sp, sp, -4
+            addi sp, sp, -16
+            stw t1, 0(sp)
+            stw t2, 4(sp)
+            stw t3, 8(sp)
+            stw a0, 12(sp)
 
             addi a0, zero, 1
             call change_speed
 
-            ldw a0, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
-            ldw t3, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
-            ldw t2, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
-            ldw t1, CUSTOM_VAR_END(sp)
-            addi sp, sp, 4
+            ldw a0, 12(sp)
+            ldw t3, 8(sp)
+            ldw t2, 4(sp)
+            ldw t1, 0(sp)
+            addi sp, sp, 16
             jmpi RUN_S+24
         
 
         BUTTON4_RUN : 
             call random_gsa
             jmpi RUN_S+32 
-    ret
-; END:select_action 
+
+    SEL_ACT_END:
+        ldw s7, 32(sp)
+        ldw s6, 28(sp)
+        ldw s5, 24(sp)
+        ldw s4, 20(sp)
+        ldw s3, 16(sp)
+        ldw s2, 12(sp)
+        ldw s1, 8(sp)
+        ldw s0, 4(sp)
+        ldw ra, 0(sp)
+        addi sp, sp, 36
+        ret
+ret
+; END:select_action
 
 ; BEGIN:cell_fate 
 cell_fate : 
@@ -841,47 +836,52 @@ cell_fate :
 
 
         DIE: 
-            add v1, zero, zero
+            add v0, zero, zero
             ret 
         LIVE: 
-            addi v1, zero, 1
+            addi v0, zero, 1
             ret
         STAY: 
-            addi v1, zero, 1
+            addi v0, zero, 1
             ret
 
     DIED : 
         beq a0, t3, BECOME_ALIVE
+		bne a0, t3, STAY_DEAD
         ret
         
 
         BECOME_ALIVE:
-            addi v1, zero, 1
+            addi v0, zero, 1
             ret
+		STAY_DEAD: 
+			addi v0, zero, 0
+			ret
     ret
 ; END:cell_fate 
          
 ; BEGIN:find_neighbours
 find_neighbours:
+    addi sp, sp, -16
+    stw ra, 0(sp)
+    stw s0, 4(sp)
+    stw s1, 8(sp)
+    stw s2, 12(sp)
+
     ; state of the cell (v1 part)
     add t0, a0, zero ; switch a0 and a1 for get_gsa (we need a0 : y)
     add a0, a1, zero ; a0 : y coordinate
     add a1, t0, zero ; a1 : x coordinate
-    addi sp, sp, -4 
-    stw ra, CUSTOM_VAR_END(sp)
-    addi sp, sp, -4 
-    stw t0, CUSTOM_VAR_END(sp)
-    addi sp, sp, -4 
-    stw a0, CUSTOM_VAR_END(sp)
-    addi sp, sp, -4 
-    stw a1, CUSTOM_VAR_END(sp)
+    
+    addi sp, sp, -12
+    stw t0, 0(sp)
+    stw a0, 4(sp)
+    stw a1, 8(sp)
     call get_gsa ; gsa of y coord in v0
-    ldw a1, CUSTOM_VAR_END(sp)
-    addi sp, sp, 4
-    ldw a0, CUSTOM_VAR_END(sp)
-    addi sp, sp, 4
-    ldw t0, CUSTOM_VAR_END(sp)
-    addi sp, sp, 4 
+    ldw a1, 8(sp)
+    ldw a0, 4(sp)
+    ldw t0, 0(sp)
+    addi sp, sp, 12 
 
     addi t0, zero, 1 ; create mask
     sll t0, t0, a1 ; shift mask
@@ -918,8 +918,12 @@ find_neighbours:
     addi s1, s1, -2
     call MOD
     add v0, t4, zero 
-    ldw ra, CUSTOM_VAR_END(sp)
-    addi sp, sp, 4
+    
+    ldw s2, 12(sp)
+    ldw s1, 8(sp)
+    ldw s0, 4(sp)
+    ldw ra, 0(sp)
+    addi sp, sp, 16
     ret
     
 
@@ -931,28 +935,15 @@ find_neighbours:
             slli s1, s1, 29
             srli s1, s1, 29 ; on prend les 3 LSB = mod 8
             add a0, zero, s1
-            add t5, zero, ra
 
-			addi sp, sp, -4
-			stw t4, CUSTOM_VAR_END(sp)
-			addi sp, sp, -4
-			stw t5, CUSTOM_VAR_END(sp)
-			addi sp, sp, -4
-			stw t0, CUSTOM_VAR_END(sp)
-			addi sp, sp, -4
-			stw s0, CUSTOM_VAR_END(sp)
-
+            addi sp, sp, -8
+            stw s0, 0(sp)
+            stw ra, 4(sp)
             call get_gsa
+            ldw ra, 4(sp)
+            ldw s0, 0(sp)
+            addi sp, sp, 8
 
-			ldw s0, CUSTOM_VAR_END(sp)
-			addi sp, sp, 4
-			ldw t0, CUSTOM_VAR_END(sp)
-			addi sp, sp, 4
-			ldw t5, CUSTOM_VAR_END(sp)
-			addi sp, sp, 4
-			ldw t4, CUSTOM_VAR_END(sp)
-			addi sp, sp, 4 
-            add ra, zero, t5
             addi t0, zero, 1 ; create mask
             sll t0, t0, s0 ; shift mask
             and t0, t0, v0 ; apply mask 
@@ -977,156 +968,261 @@ find_neighbours:
 ; END:find_neighbours
 
 ; BEGIN:update_gsa 
+;update_gsa: 
+;addi sp, sp, -4
+;stw ra, CUSTOM_VAR_END(sp)
+;ldw t0, PAUSE(zero)
+;addi t3, zero, 12 ; MX  x
+;addi t4, zero, 8 ; max y
+;addi t5, zero, 11
+;addi t7, zero, 0 ; gsa 
+;add t1, zero, zero ; iter ligne
+;bne t0, zero, ITERY
+;addi s1, zero, 1
+
+;ITERY : ;
+;	addi t2, zero, 0 ; col
+;
+;   ITERX :;
+;	    addi sp, sp, -4
+;        stw t0, CUSTOM_VAR_END(sp);
+;	 	addi sp, sp, -4
+;       stw t1, CUSTOM_VAR_END(sp)
+;        addi sp, sp, -4
+;        stw t2, CUSTOM_VAR_END(sp)
+;        addi sp, sp, -4
+;        stw t3, CUSTOM_VAR_END(sp)
+;       addi sp, sp, -4 
+;        stw t4, CUSTOM_VAR_END(sp)
+;       addi sp, sp, -4  
+;        stw t5, CUSTOM_VAR_END(sp)
+;        addi sp, sp, -4 
+;        stw t7, CUSTOM_VAR_END(sp)
+;        addi sp, sp, -4 
+;        stw s0, CUSTOM_VAR_END(sp)
+;
+;        add a0, zero, t2
+;        add a1, zero, t1
+;        call find_neighbours
+
+  ;     add a0, v0, zero ; donne le nb de live neighbours  
+ ;      add a1, v1, zero ;donne le state de la cell 
+ ;      call cell_fate
+ ;       ldw s0, CUSTOM_VAR_END(sp)
+ ;       addi sp, sp, 4
+ ;       ldw t7, CUSTOM_VAR_END(sp)
+  ;      addi sp, sp, 4
+  ;      ldw t5, CUSTOM_VAR_END(sp)
+  ;;      addi sp, sp, 4
+  ;      ldw t4, CUSTOM_VAR_END(sp)
+  ;      addi sp, sp, 4
+  ;      ldw t3, CUSTOM_VAR_END(sp)
+  ;      addi sp, sp, 4
+   ;     ldw t2, CUSTOM_VAR_END(sp)
+   ;     addi sp, sp, 4
+   ;    ldw t1, CUSTOM_VAR_END(sp)
+   ;     addi sp, sp, 4
+   ;     ldw t0, CUSTOM_VAR_END(sp)
+   ;     addi sp, sp, 4
+
+   ;	    sll t6, v0, t2
+   ;     or t7, t7, t6 
+   ;     ;addi t5, t5, -1 
+   ;     addi t2, t2, 1 
+   ;     bne t2, t3, ITERX;
+
+	;	addi sp, sp, -4
+    ;    stw t6, CUSTOM_VAR_END(sp)
+;		addi sp, sp, -4
+;        stw t7, CUSTOM_VAR_END(sp)
+;        add a0, t7, zero
+;        add a1, zero, t1
+;        ldw s0, GSA_ID(zero)
+;        beq s0, zero, SET1
+;        stw zero, GSA_ID(zero)
+;        jmpi setGSA
+        
+ ;       SET1 : 
+ ;       stw s1, GSA_ID(zero)
+ ;       jmpi setGSA
+
+        
+  ;      setGSA : 
+  ;      call set_gsa
+  ;      stw s0, GSA_ID(zero)
+  ;      ldw t7, CUSTOM_VAR_END(sp)
+  ;      addi sp, sp, 4
+  ;      ldw t6, CUSTOM_VAR_END(sp)
+  ;      addi sp, sp, 4 
+  ;      addi t1, t1, 1
+  ;      bne t1, t4, ITERY
+  ;      stw s0, GSA_ID(zero)
+  ;      beq s0, zero, ID0 
+  ;      bne s0, s1, ID1 
+   ;         ID0 :
+   ;             stw s1, GSA_ID(zero) ; next ID 
+   ;             ldw ra, CUSTOM_VAR_END(sp)
+;				addi sp, sp, 4 
+;                ret
+            
+ ;           ID1 : 
+ ;               stw zero, GSA_ID(zero) ; next ID 
+ ;               ldw ra, CUSTOM_VAR_END(sp)
+	;			addi sp, sp, 4
+   ;             ret
+;ret
+; END:update_gsa 
+
+; BEGIN:update_gsa
 update_gsa: 
-addi sp, sp, -4
-stw ra, CUSTOM_VAR_END(sp)
-ldw t0, PAUSE(zero)
-addi t3, zero, 12 ; MX  x
-addi t4, zero, 8 ; max y
-addi t5, zero, 11
-addi t7, zero, 0 ; gsa 
-add t1, zero, zero ; iter ligne
-bne t0, zero, ITERY
+; on initialise le ra ici 
+    addi sp, sp, -20
+    stw ra, 0(sp)
+    stw s0, 4(sp)
+    stw s1, 8(sp)
+    stw s2, 12(sp)
+    stw s3, 16(sp)
+    addi s0, zero, RUNNING ; running 
+    addi s1, zero, N_GSA_LINES ; MX lignes
+    addi s2, zero, N_GSA_COLUMNS ; max colomnes 
+    addi s3, zero, 1 ; value 1 constant 
+    ldw t0, PAUSE(zero) ; value of pause 
+    addi t1, zero, 0 ; iterateur sur Y (ligne)
+    beq t0, s0, PLAY
+	ret
 
-ITERY : 
-	addi t2, zero, 0 ; col
+    PLAY: 
+    addi t2, zero, 0 ; iter sur X (colonnes)
+    addi t6, zero, 0 ; the gsa 
 
-   ITERX :
-	    addi sp, sp, -4
-        stw t0, CUSTOM_VAR_END(sp)
-	 	addi sp, sp, -4
-       stw t1, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4
-        stw t2, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4
-        stw t3, CUSTOM_VAR_END(sp)
-       addi sp, sp, -4 
-        stw t4, CUSTOM_VAR_END(sp)
-       addi sp, sp, -4  
-        stw t5, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4 
-        stw t7, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4 
-        stw s0, CUSTOM_VAR_END(sp)
-
+        ITER_X:
         add a0, zero, t2
         add a1, zero, t1
+        addi sp, sp, -20
+        stw t0, 0(sp)
+        stw t1, 4(sp)
+        stw t2, 8(sp)
+        stw t4, 12(sp)
+		stw t6, 16(sp)
         call find_neighbours
-
-       add a0, v0, zero ; donne le nb de live neighbours  
-       add a1, v1, zero ;donne le state de la cell 
-       call cell_fate
-        ldw s0, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4
-        ldw t7, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4
-        ldw t5, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4
-        ldw t4, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4
-        ldw t3, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4
-        ldw t2, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4
-       ldw t1, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4
-        ldw t0, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4
-
-   	    sll t6, v0, t5
-        or t7, t7, t6 
-        addi t5, t5, -1 
+        add a0, v0, zero ;neighbours cells 
+        add a1, v1, zero ; cell state 
+        call cell_fate
+		ldw t6, 16(sp)
+        ldw t4, 12(sp)
+        ldw t2, 8(sp)
+        ldw t1, 4(sp)
+        ldw t0, 0(sp)
+        addi sp, sp, 20
+        sll t4, v0, t2
+        or t6, t4, t6
         addi t2, t2, 1 
-        bne t2, t3, ITERX
+        bne t2, s2, ITER_X 
+        addi a0, t6, 0
+        addi a1, t1, 0 
+        addi t1, t1, 1 ; ajoute 1 a la ligne 
+        ldw t5, GSA_ID(zero) ; ID du gsa 
+        beq t5, zero, SET_GSA1 ; if gsa equals 0
+        stw zero, GSA_ID(zero)
+        jmpi SUIVIE 
 
-		addi sp, sp, -4
-        stw t6, CUSTOM_VAR_END(sp)
-		addi sp, sp, -4
-        stw t7, CUSTOM_VAR_END(sp)
-        add a0, t7, zero
-        add a1, zero, t1
-        call set_gsa
-        ldw t7, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4
-        ldw t6, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4 
-        addi t1, t1, 1
-        bne t1, t4, ITERY
-        stw s0, GSA_ID(zero)
-        addi s1, zero, 1
-        beq s0, zero, ID0 
-        bne s0, s1, ID1 
-            ID0 :
-                stw s1, GSA_ID(zero) ; next ID 
-                ldw ra, CUSTOM_VAR_END(sp)
-				addi sp, sp, 4 
-                ret
-            
-            ID1 : 
-                stw zero, GSA_ID(zero) ; next ID 
-                ldw ra, CUSTOM_VAR_END(sp)
-				addi sp, sp, 4
-                ret
-ret
+        SET_GSA1: 
+        stw s3, GSA_ID(zero)
+        jmpi SUIVIE
+
+        SUIVIE: 
+        addi sp, sp, -8
+        stw t1, 0(sp)
+        stw t5, 4(sp)
+        call set_gsa 
+        ldw t5, 4(sp)
+        ldw t1, 0(sp)
+        addi sp, sp, 8 
+        stw t5, GSA_ID(zero)
+        bne t1, s1, PLAY
+        jmpi change_ID
+
+        change_ID: 
+        ldw t5, GSA_ID(zero)
+        beq t5, zero, setTo1
+        stw zero, GSA_ID(zero)
+        jmpi end_meth
+        ret
+
+        setTo1: 
+        stw s3, GSA_ID(zero)
+        jmpi end_meth
+        ret
+
+        end_meth: 
+        ldw s3, 16(sp)
+        ldw s2, 12(sp)
+        ldw s1, 8(sp)
+        ldw s0, 4(sp)
+        ldw ra, 0(sp)
+        addi sp, sp, 20
+        ret
 ; END:update_gsa 
 
 
 ; BEGIN:mask
 mask:
+    addi sp, sp, -4
+    stw ra, 0(sp)
+
     ldw t4, SEED(zero)
     addi t1, zero, -1 ; index line
     addi t2, zero, N_GSA_LINES
     slli t4, t4, 2 ; fois 4
     ldw t3, MASKS(t4) ; mask
- 	add t7, zero, zero
+ add t7, zero, zero
 
     LOOP_LINE: 
         addi t1, t1, 1
         ldw t6, 0(t3)
-  		addi t3, t3, 4
+  addi t3, t3, 4
         add a0, zero, t1
-        add t5, ra, zero
-        addi sp, sp, -4 
-        stw t1, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4 
-        stw t2, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4   
-        stw t5, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4 
-  		stw t6, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4
-        stw a0, CUSTOM_VAR_END(sp)
+
+        addi sp, sp, -24
+        stw t1, 0(sp)
+        stw t2, 4(sp)
+        stw t3, 8(sp)
+        stw t4, 12(sp)
+        stw t6, 16(sp)
+        stw a0, 20(sp)
         call get_gsa
-        ldw a0, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4
-  		ldw t6, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4 
-        ldw t5, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4   
-        ldw t2, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4 
-        ldw t1, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4 
+        ldw a0, 20(sp)
+  ldw t6, 16(sp)
+        ldw t4, 12(sp)
+        ldw t3, 8(sp)
+        ldw t2, 4(sp)
+        ldw t1, 0(sp)
+        addi sp, sp, 24
 
         and t6, t6, v0 ; masked
         add a1, zero, a0
         add a0, zero, t6
 
-        addi sp, sp, -4 
-        stw t1, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4 
-        stw t2, CUSTOM_VAR_END(sp)
-        addi sp, sp, -4   
-        stw t5, CUSTOM_VAR_END(sp)
-        call set_gsa  
-        ldw t5, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4 
-        ldw t2, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4 
-        ldw t1, CUSTOM_VAR_END(sp)
-        addi sp, sp, 4 
-        add ra, zero, t5
+        addi sp, sp, -24
+        stw t1, 0(sp)
+        stw t2, 4(sp)
+        stw t3, 8(sp)
+        stw t4, 12(sp)
+  stw t6, 16(sp)
+  stw t7, 20(sp)
+        call set_gsa
+        ldw t7, 20(sp)
+  ldw t6, 16(sp)
+        ldw t4, 12(sp)
+        ldw t3, 8(sp)
+        ldw t2, 4(sp)
+        ldw t1, 0(sp)
+        addi sp, sp, 24
+
         bne t1, t2, LOOP_LINE
+
+        ldw ra, 0(sp)
+        addi sp, sp, 4
  ret
 ; END:mask
 
@@ -1142,8 +1238,12 @@ get_input :
 
 ; BEGIN:decrement_step
 decrement_step: 
-    addi sp, sp, -4
-    stw ra, CUSTOM_VAR_END(sp)
+    addi sp, sp, -16
+    stw ra, 0(sp)
+    stw s0, 4(sp)
+    stw s2, 8(sp)
+    stw s3, 12(sp)
+
     ldw t0, CURR_STATE(zero) 
     ldw s0, PAUSE(zero)
     ldw t2, CURR_STEP(zero)
@@ -1161,6 +1261,7 @@ decrement_step:
 
         RUN_0_CASE:
             addi v0, zero, 0 ; return 0
+            jmpi DECR_STEP_END
             ret
             
         RUN_1_CASE:
@@ -1206,17 +1307,25 @@ decrement_step:
             slli t1, t1, 2 ; multiply by 4
             ldw t7, font_data(t1) ; t7 = the char to display
             stw t7, SEVEN_SEGS(zero) ; store it in segs0
+            jmpi DECR_STEP_END
    ret  
+
+        DECR_STEP_END:
+            ldw s3, 12(sp)
+            ldw s2, 8(sp)
+            ldw s0, 4(sp)
+            ldw ra, 0(sp)
+            addi sp, sp, 16
+            ret
  
     ret
 ; END:decrement_step
 
-
-
 ; BEGIN:reset_game 
 reset_game: 
 addi sp, sp, -4
-stw ra, CUSTOM_VAR_END(sp)
+stw ra, 0(sp)
+
 addi t1, zero, 1
 stw t1, CURR_STEP(zero)
 addi t0, zero, 0 ; iterateur 
@@ -1226,28 +1335,23 @@ ldw t3, font_data(zero) ; on prend la valeure 0
 addi t5, zero, seed0 ; iterateur sur les seeds 
 
 iter : 
-addi sp, sp, -4
-stw t0, CUSTOM_VAR_END(sp)
-addi sp, sp, -4
-stw t1, CUSTOM_VAR_END(sp)
-addi sp, sp, -4
-stw t5, CUSTOM_VAR_END(sp)
-addi sp, sp, -4
-stw t4, CUSTOM_VAR_END(sp)
 
 add a1, zero, t0
 ldw a0, 0(t5)
 
+addi sp, sp, -16
+stw t0, 0(sp)
+stw t1, 4(sp)
+stw t4, 8(sp)
+stw t5, 12(sp)
+
 call set_gsa
 
-ldw t4, CUSTOM_VAR_END(sp)
-addi sp, sp, 4
-ldw t5, CUSTOM_VAR_END(sp)
-addi sp, sp, 4 
-ldw t1, CUSTOM_VAR_END(sp)
-addi sp, sp, 4
-ldw t0, CUSTOM_VAR_END(sp)
-addi sp, sp, 4
+ldw t5, 12(sp)
+ldw t4, 8(sp)
+ldw t1, 4(sp)
+ldw t0, 0(sp)
+addi sp, sp, 16
 
 addi t0, t0, 1
 addi t5, t5, 4
@@ -1258,7 +1362,7 @@ stw zero, SEED(zero)
 stw zero, CURR_STATE(zero) ; INIT ST
 stw zero, GSA_ID(zero) 
 stw zero, PAUSE(zero)
-ldw ra, CUSTOM_VAR_END(sp)
+ldw ra, 0(sp)
 addi sp, sp, 4
 ret
 ; END:reset_game 
